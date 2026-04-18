@@ -1,7 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { upsertNewsAction } from '@/app/admin/news/actions'
 import ImageUploader from '../ImageUploader'
 
 export default function NewsForm({ initialData, isEditing }: { initialData?: any, isEditing?: boolean }) {
@@ -11,7 +11,7 @@ export default function NewsForm({ initialData, isEditing }: { initialData?: any
   const PULL_ZONE = "https://lanzadera-digital.b-cdn.net/camar.es/Noticias/"
 
   const [formData, setFormData] = useState({
-    id: initialData?.id || undefined, // Cambiado null por undefined
+    id: initialData?.id || undefined,
     title: initialData?.title || { es: '', en: '' },
     slug_es: initialData?.slug_es || '',
     slug_en: initialData?.slug_en || '',
@@ -23,7 +23,6 @@ export default function NewsForm({ initialData, isEditing }: { initialData?: any
     gallery: initialData?.gallery || []
   })
 
-  // Función para generar slugs automáticamente
   const slugify = (text: string) => 
     text.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
 
@@ -45,23 +44,13 @@ export default function NewsForm({ initialData, isEditing }: { initialData?: any
         return
     }
 
-    // PREPARACIÓN DE DATOS: Limpiamos el objeto para evitar enviar 'id: null'
-    const dataToSave = { ...formData };
-    
-    if (!isEditing) {
-      delete dataToSave.id; // Eliminamos la propiedad id para que Supabase use gen_random_uuid()
-    }
+    const result = await upsertNewsAction(formData)
 
-    const { error } = await supabase
-      .from('noticias')
-      .upsert(dataToSave)
-
-    if (error) {
-      alert("Error: " + error.message)
-      console.error("Error completo:", error)
-    } else {
+    if (result.success) {
       router.push('/admin/news')
       router.refresh()
+    } else {
+      alert("Error: " + result.error)
     }
     setLoading(false)
   }
@@ -73,13 +62,11 @@ export default function NewsForm({ initialData, isEditing }: { initialData?: any
     })
   }
 
-  // Manejador especial para el título que autogenera slugs
   const handleTitleChange = (val: string) => {
     const newSlug = slugify(val);
     setFormData({
       ...formData,
       title: { ...formData.title, es: val },
-      // Solo autogeneramos slug si es una noticia nueva
       slug_es: isEditing ? formData.slug_es : newSlug,
       folder_custom: isEditing ? formData.folder_custom : newSlug
     });
@@ -88,33 +75,31 @@ export default function NewsForm({ initialData, isEditing }: { initialData?: any
   return (
     <form onSubmit={handleSubmit} className="space-y-12 pb-20">
       
-      {/* SECCIÓN DE AJUSTE DE CARPETA */}
-      <section className="bg-blue-50 p-6 rounded-3xl border border-blue-200 shadow-sm">
+      {/* SECCIÓN CDN */}
+      <section className="bg-blue-50 p-6 rounded-3xl border border-blue-200">
         <div className="flex items-center gap-4">
-          <div className="bg-blue-500 text-white p-2 rounded-lg text-xl">📂</div>
+          <div className="text-xl">📂</div>
           <div className="flex-1">
-            <label className="text-[10px] font-black uppercase text-blue-400 block tracking-widest mb-1">
-              Ruta de Carpeta en CDN
-            </label>
+            <label className="text-[10px] font-black uppercase text-blue-400 block tracking-widest mb-1">Ruta de Carpeta en CDN</label>
             <input 
               className="w-full bg-transparent border-b border-blue-200 py-1 text-sm font-mono text-blue-800 outline-none"
               value={formData.folder_custom}
               onChange={(e) => setFormData({...formData, folder_custom: e.target.value})}
-              placeholder="Ej: nombre-carpeta-noticia"
+              placeholder="nombre-carpeta-noticia"
             />
           </div>
         </div>
       </section>
 
-      {/* 1. SECCIÓN MULTIMEDIA */}
+      {/* MULTIMEDIA */}
       <section className="bg-slate-50 p-6 rounded-3xl border border-slate-200">
-        <h3 className="text-lg font-bold mb-6 flex items-center gap-2 text-slate-800">🖼️ Multimedia & CDN</h3>
+        <h3 className="text-lg font-bold mb-6 text-slate-800">🖼️ Multimedia & CDN</h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="md:col-span-1 space-y-4">
-            <label className="text-xs font-black uppercase text-slate-400 block tracking-widest">Imagen de Portada</label>
-            <div className="aspect-video bg-white rounded-2xl overflow-hidden border-2 border-slate-200 relative shadow-inner group">
+            <label className="text-xs font-black uppercase text-slate-400 block tracking-widest">Portada</label>
+            <div className="aspect-video bg-white rounded-2xl overflow-hidden border-2 border-slate-200 relative">
               {formData.main_image ? (
-                <img src={getImageUrl(formData.main_image)} alt="Portada" className="w-full h-full object-cover" />
+                <img src={getImageUrl(formData.main_image)} className="w-full h-full object-cover" />
               ) : (
                 <div className="flex items-center justify-center h-full text-[10px] text-slate-300 font-bold uppercase">Sin Imagen</div>
               )}
@@ -150,12 +135,9 @@ export default function NewsForm({ initialData, isEditing }: { initialData?: any
         </div>
       </section>
 
-      {/* 2. TEXTOS EN ESPAÑOL */}
+      {/* CASTELLANO */}
       <section className="space-y-6">
-        <div className="flex items-center gap-4">
-          <span className="bg-yellow-400 text-yellow-900 px-4 py-1.5 rounded-full text-[11px] font-black uppercase">Castellano</span>
-          <div className="h-[1px] bg-slate-100 flex-1"></div>
-        </div>
+        <span className="bg-yellow-400 text-yellow-900 px-4 py-1.5 rounded-full text-[11px] font-black uppercase">Castellano</span>
         <div className="space-y-4">
           <input 
             placeholder="Título de la noticia"
@@ -179,12 +161,9 @@ export default function NewsForm({ initialData, isEditing }: { initialData?: any
         </div>
       </section>
 
-      {/* 3. TEXTOS EN INGLÉS */}
+      {/* ENGLISH */}
       <section className="space-y-6">
-        <div className="flex items-center gap-4">
-          <span className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-[11px] font-black uppercase">English</span>
-          <div className="h-[1px] bg-slate-100 flex-1"></div>
-        </div>
+        <span className="bg-blue-600 text-white px-4 py-1.5 rounded-full text-[11px] font-black uppercase">English</span>
         <div className="space-y-4">
           <input 
             placeholder="English Title"
@@ -201,8 +180,8 @@ export default function NewsForm({ initialData, isEditing }: { initialData?: any
         </div>
       </section>
 
-      {/* 4. CONFIGURACIÓN TÉCNICA */}
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-900 p-8 rounded-[3rem] text-white shadow-2xl">
+      {/* TÉCNICO */}
+      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-slate-900 p-8 rounded-[3rem] text-white">
         <div className="space-y-2">
           <label className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Slug (ES)</label>
           <input className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-sm font-mono text-emerald-400 outline-none" value={formData.slug_es} onChange={e => setFormData({...formData, slug_es: e.target.value})} />
