@@ -12,10 +12,17 @@ import ProjectGalleryEditor from '@/components/admin/ProjectGalleryEditor'
 async function updateProjectAction(formData: FormData) {
   'use server'
 
-  const id = formData.get('id');
-  const slug = formData.get('slug');
+  // Convertimos a string explícitamente para evitar errores de tipo con postgres.js
+  const id = formData.get('id')?.toString();
+  const slug = formData.get('slug')?.toString();
+
+  if (!id) {
+    console.error("ID no proporcionado");
+    return;
+  }
 
   // 1. Recuperamos el estado actual usando postgres.js
+  // Al ser 'id' un string, el compilador ya no lanza el error de 'never'
   const currentRes = await supabase`SELECT * FROM proyectos WHERE id = ${id}`;
   const current = currentRes[0];
   const oldPageData = current?.project_page || {};
@@ -23,7 +30,7 @@ async function updateProjectAction(formData: FormData) {
   // 2. Procesamos la galería enviada por el componente de cliente
   let galleryArray = oldPageData.gallery || [];
   try {
-    const galleryInput = formData.get('gallery_json') as string;
+    const galleryInput = formData.get('gallery_json')?.toString();
     if (galleryInput) {
       galleryArray = JSON.parse(galleryInput);
     }
@@ -32,7 +39,7 @@ async function updateProjectAction(formData: FormData) {
   }
 
   // 3. Procesamos el campo 'type' (Postgres espera un array)
-  const typeRaw = formData.get('type') as string;
+  const typeRaw = formData.get('type')?.toString();
   const typeArray = typeRaw 
     ? typeRaw.split(',').map(t => t.trim()).filter(Boolean) 
     : [];
@@ -42,33 +49,34 @@ async function updateProjectAction(formData: FormData) {
     ...oldPageData,
     gallery: galleryArray,
     pageTitle: {
-      es: formData.get('title_es'),
-      en: formData.get('title_en')
+      es: formData.get('title_es')?.toString() || "",
+      en: formData.get('title_en')?.toString() || ""
     },
     sobreElProyecto: {
-      es: formData.get('sobreElProyecto_es'),
-      en: formData.get('sobreElProyecto_en')
+      es: formData.get('sobreElProyecto_es')?.toString() || "",
+      en: formData.get('sobreElProyecto_en')?.toString() || ""
     },
     materials: formData.get('materials') 
       ? JSON.parse(formData.get('materials') as string) 
       : (oldPageData.materials || [])
   };
 
-  // 5. Update a la tabla usando sintaxis SQL
+  // 5. Update a la tabla usando sintaxis SQL pura
   try {
+    // Serializamos los objetos a JSON string para las columnas JSONB
     await supabase`
       UPDATE proyectos SET
         project_name = ${JSON.stringify({
-          es: formData.get('project_name_es'),
-          en: formData.get('project_name_en')
+          es: formData.get('project_name_es')?.toString() || "",
+          en: formData.get('project_name_en')?.toString() || ""
         })},
         title = ${JSON.stringify({
-          es: formData.get('title_es'),
-          en: formData.get('title_en')
+          es: formData.get('title_es')?.toString() || "",
+          en: formData.get('title_en')?.toString() || ""
         })},
         project_location = ${JSON.stringify({
-          es: formData.get('project_location_es'),
-          en: formData.get('project_location_en')
+          es: formData.get('project_location_es')?.toString() || "",
+          en: formData.get('project_location_en')?.toString() || ""
         })},
         type = ${typeArray},
         main_image = ${galleryArray.length > 0 ? galleryArray[0].src : (current?.main_image || null)},
@@ -80,10 +88,14 @@ async function updateProjectAction(formData: FormData) {
     return;
   }
 
+  // 6. Revalidación de caché
   revalidatePath('/admin/projects');
-  revalidatePath(`/admin/projects/${slug}`);
-  revalidatePath(`/proyectos/${slug}`); 
+  if (slug) {
+    revalidatePath(`/admin/projects/${slug}`);
+    revalidatePath(`/proyectos/${slug}`); 
+  }
   
+  // 7. Redirección
   redirect('/admin/projects?success=' + Date.now());
 }
 
