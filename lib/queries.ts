@@ -3,32 +3,44 @@ import { supabase } from './supabase'
 
 /**
  * Equivalente a getMaterialesByUse
- * Filtra materiales que contengan el uso (ej: 'hogar') en su array
+ * Filtra materiales usando el operador de contención de Postgres (@>)
  */
 export const getMaterialesByUse = async (use: string, limit = 4) => {
-  const query = supabase
-    .from('materiales')
-    .select('*')
-  
-  if (use !== 'all') {
-    query.contains('use', [use]) // Supabase entiende arrays nativos
+  try {
+    if (use === 'all') {
+      return await supabase`
+        SELECT * FROM materiales 
+        LIMIT ${limit}
+      `;
+    }
+
+    // El operador @> busca si el valor existe dentro del array/JSONB
+    return await supabase`
+      SELECT * FROM materiales 
+      WHERE use @> ${JSON.stringify([use])}
+      LIMIT ${limit}
+    `;
+  } catch (error) {
+    console.error("Error en getMaterialesByUse:", error);
+    return [];
   }
-  
-  const { data } = await query.limit(limit)
-  return data
 }
 
 /**
  * Equivalente a getRelatedMateriales
- * Busca materiales del mismo tipo (ej: Mármol) pero excluye el actual
+ * Filtra por tipo dentro de JSONB y excluye el nombre actual
  */
 export const getRelatedMateriales = async (materialName: string, typeEs: string) => {
-  const { data } = await supabase
-    .from('materiales')
-    .select('*')
-    .eq('material_type->>es', typeEs) // Filtra dentro del JSONB
-    .neq('material_name', materialName) // Excluye el actual
-    .limit(5)
-    
-  return data
+  try {
+    // Usamos ->> para acceder a la propiedad de texto dentro del JSONB de Postgres
+    return await supabase`
+      SELECT * FROM materiales 
+      WHERE material_type->>'es' = ${typeEs}
+      AND material_name != ${materialName}
+      LIMIT 5
+    `;
+  } catch (error) {
+    console.error("Error en getRelatedMateriales:", error);
+    return [];
+  }
 }
