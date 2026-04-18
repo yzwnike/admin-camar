@@ -8,15 +8,16 @@ import { DeleteProjectButton } from '@/components/admin/DeleteProjectButton'
  */
 async function deleteProjectAction(formData: FormData) {
   'use server'
-  const id = formData.get('id');
+  // Convertimos a string para que postgres.js no falle
+  const id = formData.get('id')?.toString();
   
   if (!id) return;
 
   try {
-    // Usamos SQL puro para eliminar
+    // Usamos SQL puro para eliminar con tagged template
     await supabase`
       DELETE FROM proyectos 
-      WHERE id = ${id as string}
+      WHERE id = ${id}
     `;
   } catch (error) {
     console.error("❌ Error eliminando proyecto en Neon:", error);
@@ -28,12 +29,15 @@ async function deleteProjectAction(formData: FormData) {
 
 export default async function ProjectsListPage() {
   // 1. Obtenemos los proyectos ordenados por ID (Neon/SQL)
-  let proyectos;
+  // Inicializamos con tipo para evitar error de "implicitly has any type"
+  let proyectos: any[] = [];
+  
   try {
-    proyectos = await supabase`
+    const data = await supabase`
       SELECT * FROM proyectos 
       ORDER BY id DESC
     `;
+    proyectos = data;
   } catch (err) {
     console.error("❌ Error en Neon Proyectos:", err);
     proyectos = [];
@@ -41,7 +45,8 @@ export default async function ProjectsListPage() {
 
   // Función de ayuda interna para parsear campos JSON/Text
   const safeParse = (data: any) => {
-    if (!data || typeof data !== 'string') return data;
+    if (!data) return null;
+    if (typeof data !== 'string') return data;
     try {
       return JSON.parse(data);
     } catch (e) {
@@ -55,7 +60,7 @@ export default async function ProjectsListPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">Proyectos</h1>
-          <p className="text-slate-500 font-medium">Gestiona el portafolio de obras ({proyectos?.length || 0})</p>
+          <p className="text-slate-500 font-medium">Gestiona el portafolio de obras ({proyectos.length})</p>
         </div>
         <Link href="/admin/projects/new" className="bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-emerald-700 transition shadow-lg">
           + Nuevo Proyecto
@@ -63,7 +68,7 @@ export default async function ProjectsListPage() {
       </div>
 
       {/* LISTADO */}
-      {!proyectos || proyectos.length === 0 ? (
+      {proyectos.length === 0 ? (
         <div className="bg-white border-2 border-dashed border-slate-200 rounded-[2.5rem] py-20 text-center">
           <p className="text-slate-400 font-medium italic">No se han encontrado proyectos en la base de datos.</p>
         </div>
@@ -77,12 +82,10 @@ export default async function ProjectsListPage() {
             const pageObj = safeParse(p.project_page);
 
             const titulo = titleObj?.es || (typeof titleObj === 'string' ? titleObj : 'Sin título');
-            
             const ubicacion = locationObj?.es || (typeof locationObj === 'string' ? locationObj : 'Ubicación no definida');
 
             // Lógica de imagen (Priorizamos la nueva columna si existiera, luego los objetos antiguos)
             const portada = p.image_url || pageObj?.main_image || p.main_image || p.mainImage || "/placeholder-project.jpg";
-
             const filtro = pageObj?.filtro || 'Proyecto';
 
             return (
