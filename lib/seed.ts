@@ -1861,27 +1861,42 @@ const materialesOriginales = [
 ]
 
 export const ejecutarImportacion = async () => {
-  console.log("🚀 Iniciando importación por lotes...")
+  console.log("🚀 Iniciando importación de materiales por lotes...")
 
-  // Formateamos los datos para que coincidan con las columnas de la DB
-  const datosParaInsertar = materialesOriginales.map(m => ({
+  // 1. Formateamos los datos asegurando que las llaves coincidan con las columnas
+  // Usamos (m: any) para evitar errores de TypeScript durante el mapeo
+  const datosParaInsertar = materialesOriginales.map((m: any) => ({
     material_name: m.materialName,
     material_type: m.materialType,
     location: m.location,
     description: m.description,
-    use: m.use
+    use: m.use,
+    main_image: m.mainImage || '',
+    // Si tienes un slug único para materiales, inclúyelo aquí para el ON CONFLICT
+    // slug: m.slug || m.materialName.toLowerCase().replace(/\s+/g, '-')
   }))
 
-  // Insertamos los datos
-  const { data, error } = await supabase
-    .from('materiales')
-    .insert(datosParaInsertar)
-    .select()
+  try {
+    // 2. Inserción masiva con SQL puro
+    // Si tu tabla no tiene una restricción UNIQUE para hacer ON CONFLICT, 
+    // puedes quitar esa parte, pero es recomendable para evitar duplicados.
+    const data = await supabase`
+      INSERT INTO materiales ${supabase(datosParaInsertar)}
+      ON CONFLICT (material_name) 
+      DO UPDATE SET
+        material_type = EXCLUDED.material_type,
+        location = EXCLUDED.location,
+        description = EXCLUDED.description,
+        use = EXCLUDED.use,
+        main_image = EXCLUDED.main_image
+      RETURNING *
+    `;
 
-  if (error) {
-    console.error("❌ Error de Supabase:", error.message)
-    return { success: false, error: error.message }
+    console.log(`✅ ¡Éxito! ${data.length} materiales importados.`);
+    return { success: true, count: data.length };
+
+  } catch (error: any) {
+    console.error("❌ Error de Base de Datos:", error.message);
+    return { success: false, error: error.message };
   }
-
-  return { success: true, count: data?.length || 0 }
 }

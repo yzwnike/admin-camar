@@ -3792,25 +3792,40 @@ const proyectosOriginales = [
 export const importarProyectos = async () => {
   console.log("🚀 Iniciando importación de proyectos...");
 
-  const datosFormateados = proyectosOriginales.map(p => ({
-    project_name: p.projectName,
-    title: p.title,
-    project_location: p.projectLocation,
-    bg_image: p.bgImage,
-    main_image: p.mainImage,
+  // Usamos (p: any) para que TypeScript no se queje de si existe slug o slug_es
+  const datosFormateados = proyectosOriginales.map((p: any) => ({
+    projectName: p.projectName,
+    // Si en tu JSON original se llama 'slug', úsalo aquí para la columna 'slug_es'
+    slug_es: p.slug_es || p.slug || '', 
+    slug_en: p.slug_en || p.slug || '',
+    title: p.title || { es: "", en: "" },
+    projectLocation: p.projectLocation,
+    bgImage: p.bgImage,
+    mainImage: p.mainImage,
     type: p.type,
-    project_page: p.projectPage
+    projectPage: p.projectPage
   }));
 
-  const { data, error } = await supabase
-    .from('proyectos')
-    .insert(datosFormateados)
-    .select();
+  try {
+    const data = await supabase`
+      INSERT INTO proyectos ${supabase(datosFormateados)}
+      ON CONFLICT (slug_es) 
+      DO UPDATE SET
+        "projectName" = EXCLUDED."projectName",
+        "projectLocation" = EXCLUDED."projectLocation",
+        "bgImage" = EXCLUDED."bgImage",
+        "mainImage" = EXCLUDED."mainImage",
+        type = EXCLUDED.type,
+        "projectPage" = EXCLUDED."projectPage",
+        slug_en = EXCLUDED.slug_en
+      RETURNING *
+    `;
 
-  if (error) {
-    console.error("❌ Error:", error.message);
+    console.log(`✅ ¡Éxito! ${data.length} proyectos importados.`);
+    return { success: true, count: data.length };
+
+  } catch (error: any) {
+    console.error("❌ Error proyectos:", error.message);
     return { success: false, error: error.message };
   }
-
-  return { success: true, count: data.length };
 }
