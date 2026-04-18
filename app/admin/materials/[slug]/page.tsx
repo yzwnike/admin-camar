@@ -11,6 +11,11 @@ import ImagePicker from '@/components/admin/ImagePicker'
 async function updateMaterialAction(formData: FormData) {
   'use server'
   
+  // Importaciones necesarias dentro del archivo (asegúrate de que estén arriba)
+  // import { supabase } from '@/lib/supabase'
+  // import { revalidatePath } from 'next/cache'
+  // import { redirect } from 'next/navigation'
+
   const id = formData.get('id') as string;
   const name = formData.get('material_name') as string;
   const file = formData.get('image') as File;
@@ -19,7 +24,6 @@ async function updateMaterialAction(formData: FormData) {
 
   try {
     // A. SUBIDA A BUNNY SI HAY ARCHIVO NUEVO
-    // Validamos que exista y que cumpla el límite de 1MB (1048576 bytes)
     if (file && file.size > 0 && file.size <= 1048576) {
       const sanitizedName = name
         .normalize("NFD")
@@ -50,30 +54,35 @@ async function updateMaterialAction(formData: FormData) {
       }
     }
 
-    // B. PREPARACIÓN DE DATOS (JSON para Neon)
-    const location = JSON.stringify({
+    // B. PREPARACIÓN DE DATOS (Objetos para el cliente de Supabase)
+    // El cliente de Supabase convierte automáticamente objetos a JSONB
+    const location = {
       es: formData.get('location_es') || "",
       en: formData.get('location_en') || ""
-    });
+    };
 
-    const description = JSON.stringify({
+    const description = {
       es: formData.get('description_es') || "",
       en: formData.get('description_en') || ""
-    });
+    };
 
     const useArray = formData.get('use') ? JSON.parse(formData.get('use') as string) : [];
 
-    // C. UPDATE EN NEON (SQL Puro con postgres.js)
-    await supabase`
-      UPDATE materiales 
-      SET 
-        material_name = ${name},
-        location = ${location},
-        description = ${description},
-        use = ${useArray},
-        image_url = ${imageUrl}
-      WHERE id::text = ${id}
-    `;
+    // C. UPDATE EN NEON (Corregido: Sintaxis de Supabase Client)
+    const { error: updateError } = await supabase
+      .from('materiales')
+      .update({
+        material_name: name,
+        location: location,
+        description: description,
+        use: useArray,
+        image_url: imageUrl
+      })
+      .eq('id', id);
+
+    if (updateError) {
+      throw new Error(updateError.message);
+    }
 
     console.log("✅ Material actualizado en Neon correctamente.");
 
