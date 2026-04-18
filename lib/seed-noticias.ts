@@ -1,4 +1,5 @@
 // /lib/seed-noticias.ts
+import 'server-only';
 import { supabase } from './supabase'
 
 const noticiasFusionadas = [
