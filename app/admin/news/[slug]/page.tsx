@@ -1,4 +1,3 @@
-// /app/admin/news/[slug]/page.tsx
 import { supabase } from '@/lib/supabase'
 import NewsForm from '@/components/forms/NewsForm'
 import { notFound } from 'next/navigation'
@@ -14,16 +13,22 @@ export default async function EditNewsPage({ params }: Props) {
   const resolvedParams = await params;
   const slug = resolvedParams.slug;
 
-  // 2. Buscamos la noticia en Supabase usando el slug de la URL
-  const { data: noticia, error } = await supabase
-    .from('noticias')
-    .select('*')
-    .eq('slug_es', slug)
-    .maybeSingle() // Usamos maybeSingle para que no explote si no hay nada
+  // 2. Buscamos la noticia usando la sintaxis de postgres.js
+  let noticia;
+  try {
+    const data = await supabase`
+      SELECT * FROM noticias 
+      WHERE slug_es = ${slug} 
+      LIMIT 1
+    `;
+    noticia = data[0]; // postgres.js devuelve un array, tomamos el primer elemento
+  } catch (err: any) {
+    console.error("Error al obtener la noticia:", err.message);
+    return notFound();
+  }
 
-  // 3. Si hay error o la noticia no existe, mandamos al 404
-  if (error || !noticia) {
-    console.error("Error de Supabase o noticia inexistente:", error?.message);
+  // 3. Si no existe la noticia, mandamos al 404
+  if (!noticia) {
     return notFound();
   }
 
