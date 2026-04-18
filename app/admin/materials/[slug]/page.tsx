@@ -5,99 +5,168 @@ import Link from 'next/link'
 import MaterialUsesEditor from '@/components/admin/MaterialUsesEditor'
 import ImagePicker from '@/components/admin/ImagePicker'
 
-/**
- * 1. ACCIÓN DE ACTUALIZACIÓN (Neon + Bunny.net)
- */
 async function updateMaterialAction(formData: FormData) {
+
   'use server'
-  
-  // Importaciones necesarias dentro del archivo (asegúrate de que estén arriba)
-  // import { supabase } from '@/lib/supabase'
-  // import { revalidatePath } from 'next/cache'
-  // import { redirect } from 'next/navigation'
+
+ 
 
   const id = formData.get('id') as string;
+
   const name = formData.get('material_name') as string;
+
   const file = formData.get('image') as File;
+
   // Recuperamos la URL que ya tiene el material por si no se sube una nueva
+
   let imageUrl = formData.get('current_image_url') as string;
 
+
+
   try {
+
     // A. SUBIDA A BUNNY SI HAY ARCHIVO NUEVO
+
+    // Validamos que exista y que cumpla el límite de 1MB (1048576 bytes)
+
     if (file && file.size > 0 && file.size <= 1048576) {
+
       const sanitizedName = name
+
         .normalize("NFD")
+
         .replace(/[\u0300-\u036f]/g, "")
+
         .toLowerCase()
+
         .trim()
+
         .replace(/\s+/g, '-');
-        
+
+       
+
       const fileName = `${Date.now()}-${sanitizedName}.webp`;
+
       const storageUrl = `${process.env.BUNNY_BASE_URL}/${process.env.BUNNY_STORAGE_ZONE}/camar.es/Materiales/${fileName}`;
 
+
+
       const response = await fetch(storageUrl, {
+
         method: 'PUT',
+
         headers: {
+
           'AccessKey': process.env.BUNNY_ACCESS_KEY!,
+
           'Content-Type': 'application/octet-stream',
+
         },
+
         body: Buffer.from(await file.arrayBuffer()),
+
         // @ts-ignore
+
         duplex: 'half',
+
       });
 
+
+
       if (response.ok) {
+
         imageUrl = `${process.env.PULL_ZONE_URL}/camar.es/Materiales/${fileName}`;
+
         console.log("✅ Nueva imagen subida a Bunny:", imageUrl);
+
       } else {
+
         console.error("❌ Error subiendo a Bunny:", await response.text());
+
       }
+
     }
 
-    // B. PREPARACIÓN DE DATOS (Objetos para el cliente de Supabase)
-    // El cliente de Supabase convierte automáticamente objetos a JSONB
-    const location = {
-      es: formData.get('location_es') || "",
-      en: formData.get('location_en') || ""
-    };
 
-    const description = {
+
+    // B. PREPARACIÓN DE DATOS (JSON para Neon)
+
+    const location = JSON.stringify({
+
+      es: formData.get('location_es') || "",
+
+      en: formData.get('location_en') || ""
+
+    });
+
+
+
+    const description = JSON.stringify({
+
       es: formData.get('description_es') || "",
+
       en: formData.get('description_en') || ""
-    };
+
+    });
+
+
 
     const useArray = formData.get('use') ? JSON.parse(formData.get('use') as string) : [];
 
-    // C. UPDATE EN NEON (Corregido: Sintaxis de Supabase Client)
-    const { error: updateError } = await supabase
-      .from('materiales')
-      .update({
-        material_name: name,
-        location: location,
-        description: description,
-        use: useArray,
-        image_url: imageUrl
-      })
-      .eq('id', id);
 
-    if (updateError) {
-      throw new Error(updateError.message);
-    }
+
+    // C. UPDATE EN NEON (SQL Puro con postgres.js)
+
+    await supabase`
+
+      UPDATE materiales
+
+      SET
+
+        material_name = ${name},
+
+        location = ${location},
+
+        description = ${description},
+
+        use = ${useArray},
+
+        image_url = ${imageUrl}
+
+      WHERE id::text = ${id}
+
+    `;
+
+
 
     console.log("✅ Material actualizado en Neon correctamente.");
 
+
+
   } catch (error: any) {
+
     console.error("❌ ERROR CRÍTICO AL ACTUALIZAR:", error.message);
+
     throw error;
+
   }
 
+
+
   // Revalidamos para que los cambios se vean en toda la web
+
   revalidatePath('/admin/materials');
+
   revalidatePath(`/admin/materials/${id}`);
+
   revalidatePath('/');
-  
+
+ 
+
   // Redirigimos al catálogo
+
   redirect('/admin/materials');
+
 }
 
 /**

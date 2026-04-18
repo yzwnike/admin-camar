@@ -1,12 +1,19 @@
 // /lib/supabase.ts
-import { createClient } from '@supabase/supabase-js'
+import 'server-only';
+import postgres from 'postgres';
 
-// Estas variables deben empezar por NEXT_PUBLIC_ para que el navegador las vea
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+// Tu cadena de conexión de Neon (asegúrate de que esté en el .env)
+const connectionString = process.env.DATABASE_URL!;
 
-// Creamos el cliente estándar de Supabase (compatible con el navegador)
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Creamos la conexión a Neon
+const sql = postgres(connectionString, {
+  ssl: 'require',
+  idle_timeout: 20,
+  max_lifetime: 60 * 30,
+});
 
-// Exportación por defecto para evitar errores de importación en otros archivos
-export default supabase
+// Exportamos 'sql' pero con el nombre 'supabase' para engañar al sistema
+export { sql as supabase };
+
+// También lo exportamos por defecto por si acaso
+export default sql;
