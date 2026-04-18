@@ -102,11 +102,22 @@ async function updateProjectAction(formData: FormData) {
 /**
  * SERVER ACTION: ELIMINAR PROYECTO
  */
+/**
+ * SERVER ACTION: ELIMINAR PROYECTO
+ */
 async function deleteProjectAction(formData: FormData) {
   'use server'
-  const id = formData.get('id');
+  
+  // Convertimos a string explícitamente y validamos
+  const id = formData.get('id')?.toString();
+  
+  if (!id) {
+    console.error("No se proporcionó un ID válido para eliminar");
+    return;
+  }
   
   try {
+    // Al ser un string, la librería ya lo acepta con seguridad
     await supabase`DELETE FROM proyectos WHERE id = ${id}`;
   } catch (error: any) {
     console.error("Error eliminando:", error.message);
