@@ -5,7 +5,7 @@ import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 
 /**
- * Server Action para procesar la creación de la noticia
+ * Server Action corregida con sintaxis postgres.js
  */
 async function createNewsAction(formData: FormData) {
   'use server'
@@ -19,27 +19,38 @@ async function createNewsAction(formData: FormData) {
     text.toLowerCase().trim().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-').replace(/^-+|-+$/g, '');
 
   const slug_es = slugify(titleEs);
+  const slug_en = titleEn ? slugify(titleEn) : slug_es;
+  const date = (formData.get('date') as string) || new Date().toISOString().split('T')[0];
+  const main_image = (formData.get('main_image') as string) || "";
+  const content_es = (formData.get('content_es') as string) || "";
+  const content_en = (formData.get('content_en') as string) || "";
 
-  // CONSTRUIMOS EL PAYLOAD EXPLÍCITAMENTE SIN EL ID
-  const payload = {
-    title: { es: titleEs, en: titleEn },
-    slug_es: slug_es,
-    slug_en: titleEn ? slugify(titleEn) : slug_es,
-    date: formData.get('date') || new Date().toISOString().split('T')[0],
-    main_image: (formData.get('main_image') as string) || null,
-    content: {
-      es: (formData.get('content_es') as string) || "",
-      en: (formData.get('content_en') as string) || ""
-    },
-    folder_custom: slug_es
-  };
-
-  // IMPORTANTE: Asegúrate de que no estamos pasando un objeto con id: null
-  const { error } = await supabase
-    .from('noticias')
-    .insert([payload]); // Pasamos el array con el objeto limpio
-
-  if (error) {
+  try {
+    // Usamos la sintaxis de postgres.js (comillas invertidas)
+    await supabase`
+      INSERT INTO noticias (
+        title, 
+        slug_es, 
+        slug_en, 
+        date, 
+        main_image, 
+        content, 
+        folder_custom,
+        excerpt,
+        gallery
+      ) VALUES (
+        ${JSON.stringify({ es: titleEs, en: titleEn })},
+        ${slug_es},
+        ${slug_en},
+        ${date},
+        ${main_image},
+        ${JSON.stringify({ es: content_es, en: content_en })},
+        ${slug_es},
+        ${JSON.stringify({ es: "", en: "" })},
+        ${JSON.stringify([])}
+      )
+    `;
+  } catch (error: any) {
     console.error("DEBUG ERROR:", error.message);
     return;
   }
@@ -80,14 +91,10 @@ export default function CreateNewsPage() {
 
       {/* El Formulario de Creación */}
       <div className="bg-white p-6 md:p-12 rounded-[3.5rem] border border-slate-200 shadow-2xl shadow-slate-200/60 relative overflow-hidden">
-        {/* Decoración visual de fondo */}
         <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-full -z-10 opacity-50"></div>
         
-        {/* IMPORTANTE: 
-            Pasamos isEditing={false} para que el botón diga "Crear"
-            Pasamos la acción del servidor directamente.
-        */}
-        <NewsForm isEditing={false} action={createNewsAction} />
+        {/* NewsForm se encargará de renderizar los inputs necesarios para el FormData */}
+        <NewsForm isEditing={false} />
       </div>
       
       <div className="mt-8 text-center flex flex-col gap-1">
