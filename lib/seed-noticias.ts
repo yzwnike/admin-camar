@@ -355,16 +355,30 @@ Link to the news: [Diario Sur](https://www.diariosur.es/marbella-estepona/compra
 
 export const importarNoticias = async () => {
   console.log("🚀 Importando Noticias con soporte folder_custom...");
-  const { data, error } = await supabase
-    .from('noticias')
-    .upsert(noticiasFusionadas, { onConflict: 'slug_es' })
-    .select()
 
-  if (error) {
-    console.error("❌ Error noticias:", error.message)
-    return { success: false, error: error.message }
+  try {
+    // 1. Ejecutamos el UPSERT usando SQL puro
+    // Postgres.js genera los nombres de columnas y valores automáticamente con supabase(array)
+    const data = await supabase`
+      INSERT INTO noticias ${supabase(noticiasFusionadas)}
+      ON CONFLICT (slug_es) 
+      DO UPDATE SET
+        title = EXCLUDED.title,
+        slug_en = EXCLUDED.slug_en,
+        folder_custom = EXCLUDED.folder_custom,
+        date = EXCLUDED.date,
+        excerpt = EXCLUDED.excerpt,
+        content = EXCLUDED.content,
+        main_image = EXCLUDED.main_image,
+        gallery = EXCLUDED.gallery
+      RETURNING *
+    `;
+
+    console.log(`✅ ¡Éxito! ${data.length} noticias importadas con rutas correctas.`);
+    return { success: true, count: data.length };
+
+  } catch (error: any) {
+    console.error("❌ Error noticias:", error.message);
+    return { success: false, error: error.message };
   }
-
-  console.log(`✅ ¡Éxito! ${data?.length} noticias importadas con rutas correctas.`)
-  return { success: true, count: data?.length || 0 }
 }
