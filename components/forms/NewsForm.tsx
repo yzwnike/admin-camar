@@ -11,7 +11,7 @@ export default function NewsForm({ initialData, isEditing }: { initialData?: any
   const PULL_ZONE = "https://lanzadera-digital.b-cdn.net/camar.es/Noticias/"
 
   const [formData, setFormData] = useState({
-    id: initialData?.id || undefined,
+    id: initialData?.id || '',
     title: initialData?.title || { es: '', en: '' },
     slug_es: initialData?.slug_es || '',
     slug_en: initialData?.slug_en || '',
@@ -44,15 +44,36 @@ export default function NewsForm({ initialData, isEditing }: { initialData?: any
         return
     }
 
-    const result = await upsertNewsAction(formData)
+    try {
+      // 1. Creamos FormData nativo para la Server Action
+      const data = new FormData()
+      data.append('id', formData.id)
+      data.append('slug_es', formData.slug_es)
+      data.append('slug_en', formData.slug_en)
+      data.append('folder_custom', formData.folder_custom)
+      data.append('date', formData.date)
+      data.append('main_image', formData.main_image)
 
-    if (result.success) {
-      router.push('/admin/news')
-      router.refresh()
-    } else {
-      alert("Error: " + result.error)
+      // 2. Serializamos objetos complejos a JSON string
+      data.append('title', JSON.stringify(formData.title))
+      data.append('excerpt', JSON.stringify(formData.excerpt))
+      data.append('content', JSON.stringify(formData.content))
+      data.append('gallery', JSON.stringify(formData.gallery))
+
+      const result = await upsertNewsAction(data)
+
+      if (result?.success) {
+        router.push('/admin/news')
+        router.refresh()
+      } else {
+        alert("Error: " + result?.error)
+      }
+    } catch (err) {
+      console.error(err)
+      alert("Error crítico al procesar la noticia")
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const removeGalleryImage = (idx: number) => {
@@ -95,11 +116,11 @@ export default function NewsForm({ initialData, isEditing }: { initialData?: any
       <section className="bg-slate-50 p-6 rounded-3xl border border-slate-200">
         <h3 className="text-lg font-bold mb-6 text-slate-800">🖼️ Multimedia & CDN</h3>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="md:col-span-1 space-y-4">
+          <div className="md:col-span-1 space-y-4 text-slate-900">
             <label className="text-xs font-black uppercase text-slate-400 block tracking-widest">Portada</label>
             <div className="aspect-video bg-white rounded-2xl overflow-hidden border-2 border-slate-200 relative">
               {formData.main_image ? (
-                <img src={getImageUrl(formData.main_image)} className="w-full h-full object-cover" />
+                <img src={getImageUrl(formData.main_image)} className="w-full h-full object-cover" alt="Main" />
               ) : (
                 <div className="flex items-center justify-center h-full text-[10px] text-slate-300 font-bold uppercase">Sin Imagen</div>
               )}
@@ -113,10 +134,10 @@ export default function NewsForm({ initialData, isEditing }: { initialData?: any
           
           <div className="md:col-span-3 space-y-4">
             <label className="text-xs font-black uppercase text-slate-400 block tracking-widest">Galería ({formData.gallery.length})</label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 text-slate-900">
               {formData.gallery.map((img: any, idx: number) => (
                 <div key={idx} className="aspect-square bg-white rounded-xl overflow-hidden border border-slate-200 relative group">
-                  <img src={getImageUrl(img.src || img)} className="w-full h-full object-cover" />
+                  <img src={getImageUrl(img.src || img)} className="w-full h-full object-cover" alt="Gallery" />
                   <button type="button" onClick={() => removeGalleryImage(idx)} className="absolute inset-0 bg-red-600/90 text-white opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center font-black text-[10px]">ELIMINAR</button>
                 </div>
               ))}
@@ -141,20 +162,20 @@ export default function NewsForm({ initialData, isEditing }: { initialData?: any
         <div className="space-y-4">
           <input 
             placeholder="Título de la noticia"
-            className="w-full text-4xl font-black bg-transparent border-b-4 border-slate-100 focus:border-yellow-400 outline-none pb-4 transition-colors"
+            className="w-full text-4xl font-black bg-transparent border-b-4 border-slate-100 focus:border-yellow-400 outline-none pb-4 transition-colors text-slate-900"
             value={formData.title.es}
             onChange={(e) => handleTitleChange(e.target.value)}
           />
           <textarea 
             placeholder="Resumen..."
-            className="w-full p-5 bg-slate-50 rounded-[2rem] border border-slate-200 outline-none"
+            className="w-full p-5 bg-slate-50 rounded-[2rem] border border-slate-200 outline-none text-slate-900"
             rows={2}
             value={formData.excerpt.es}
             onChange={(e) => setFormData({...formData, excerpt: {...formData.excerpt, es: e.target.value}})}
           />
           <textarea 
             placeholder="Contenido..."
-            className="w-full p-6 bg-white rounded-[2rem] border border-slate-200 outline-none font-serif text-lg min-h-[400px]"
+            className="w-full p-6 bg-white rounded-[2rem] border border-slate-200 outline-none font-serif text-lg min-h-[400px] text-slate-900"
             value={formData.content.es}
             onChange={(e) => setFormData({...formData, content: {...formData.content, es: e.target.value}})}
           />
@@ -167,13 +188,13 @@ export default function NewsForm({ initialData, isEditing }: { initialData?: any
         <div className="space-y-4">
           <input 
             placeholder="English Title"
-            className="w-full text-4xl font-black bg-transparent border-b-4 border-slate-100 focus:border-blue-600 outline-none pb-4 transition-colors"
+            className="w-full text-4xl font-black bg-transparent border-b-4 border-slate-100 focus:border-blue-600 outline-none pb-4 transition-colors text-slate-900"
             value={formData.title.en}
             onChange={(e) => setFormData({...formData, title: {...formData.title, en: e.target.value}})}
           />
           <textarea 
             placeholder="English content..."
-            className="w-full p-6 bg-white rounded-[2rem] border border-slate-200 outline-none font-serif text-lg min-h-[400px]"
+            className="w-full p-6 bg-white rounded-[2rem] border border-slate-200 outline-none font-serif text-lg min-h-[400px] text-slate-900"
             value={formData.content.en}
             onChange={(e) => setFormData({...formData, content: {...formData.content, en: e.target.value}})}
           />

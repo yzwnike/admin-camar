@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { useRouter } from "next/navigation"
-import { createProjectAction } from "@/app/admin/projects/actions"
+// CAMBIADO: Importamos la nueva función upsertProjectAction
+import { upsertProjectAction } from "@/app/admin/projects/actions"
 
 export function CreateProjectForm() {
   const [name, setName] = useState("")
@@ -18,15 +19,44 @@ export function CreateProjectForm() {
     setIsCreating(true)
 
     try {
-      // Llamamos a la Server Action
-      const result = await createProjectAction(trimmedName)
+      // 1. Preparamos el FormData (porque la nueva acción espera FormData)
+      // Generamos un slug básico para que el editor tenga una ruta inicial
+      const slug = trimmedName.toLowerCase().trim().replace(/\s+/g, '-')
+      
+      const data = new FormData()
+      data.append('id', '') // ID vacío indica que es una creación
+      data.append('slug_es', slug)
+      data.append('slug_en', slug)
+      
+      // Enviamos el objeto de nombre serializado
+      data.append('projectName', JSON.stringify({ es: trimmedName, en: trimmedName }))
+      
+      // Enviamos el resto de campos mínimos requeridos como objetos vacíos serializados
+      data.append('projectLocation', JSON.stringify({ es: "", en: "" }))
+      data.append('type', JSON.stringify([]))
+      data.append('projectPage', JSON.stringify({
+        filtro: "Vivienda Privada",
+        pageTitle: { es: "", en: "" },
+        pageDescription: { es: "", en: "" },
+        gallery: [],
+        materials: [],
+        sobreElProyecto: { es: "", en: "" },
+        projectDetails: [
+          { label: { es: "Categoría", en: "Category" }, value: { es: "", en: "" } },
+          { label: { es: "Fecha", en: "Date" }, value: { es: "", en: "" } },
+          { label: { es: "País", en: "Country" }, value: { es: "", en: "" } }
+        ]
+      }))
 
-      if (result.success && result.slug) {
-        // Redirigimos al editor del nuevo proyecto
-        router.push(`/admin/projects/${result.slug}`)
-        router.refresh() // Forzamos actualización de la caché
+      // 2. Llamamos a la Server Action unificada
+      const result = await upsertProjectAction(data)
+
+      if (result.success) {
+        // Redirigimos usando el slug que acabamos de generar
+        router.push(`/admin/projects/${slug}`)
+        router.refresh()
       } else {
-        alert("Error: El proyecto o el slug ya existen.")
+        alert("Error: " + result.error)
       }
     } catch (err) {
       console.error("Client Error:", err)

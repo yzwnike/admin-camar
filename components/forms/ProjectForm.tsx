@@ -11,7 +11,7 @@ export default function ProjectForm({ initialData }: { initialData?: any }) {
   const PULL_ZONE = "https://lanzadera-digital.b-cdn.net/camar.es/Proyectos/"
 
   const [formData, setFormData] = useState({
-    id: initialData?.id || null,
+    id: initialData?.id || '',
     slug_es: initialData?.slug_es || '',
     slug_en: initialData?.slug_en || '',
     projectName: initialData?.projectName || { es: '', en: '' },
@@ -39,16 +39,37 @@ export default function ProjectForm({ initialData }: { initialData?: any }) {
     e.preventDefault()
     setLoading(true)
 
-    const result = await upsertProjectAction(formData)
-    
-    if (result.success) {
-      alert("¡Proyecto guardado con éxito!")
-      router.push('/admin/projects')
-      router.refresh()
-    } else {
-      alert("Error: " + result.error)
+    try {
+      // 1. Convertimos el estado a FormData real
+      const data = new FormData()
+      data.append('id', formData.id || '')
+      data.append('slug_es', formData.slug_es)
+      data.append('slug_en', formData.slug_en)
+      data.append('mainImage', formData.mainImage)
+      data.append('bgImage', formData.bgImage)
+
+      // 2. Serializamos los objetos complejos a JSON string
+      data.append('projectName', JSON.stringify(formData.projectName))
+      data.append('projectLocation', JSON.stringify(formData.projectLocation))
+      data.append('type', JSON.stringify(formData.type))
+      data.append('projectPage', JSON.stringify(formData.projectPage))
+
+      // 3. Enviamos el FormData a la Server Action
+      const result = await upsertProjectAction(data)
+      
+      if (result?.success) {
+        alert("¡Proyecto guardado con éxito!")
+        router.push('/admin/projects')
+        router.refresh()
+      } else {
+        alert("Error: " + result?.error)
+      }
+    } catch (err) {
+      console.error(err)
+      alert("Error crítico al procesar el formulario")
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const removeGalleryImage = (idx: number) => {
@@ -71,7 +92,7 @@ export default function ProjectForm({ initialData }: { initialData?: any }) {
             <ImageUploader folder="Proyectos" onUploadSuccess={(name) => setFormData({...formData, mainImage: name})} />
             {formData.mainImage && (
               <div className="relative h-48 rounded-3xl overflow-hidden border-4 border-white shadow-xl">
-                <img src={`${PULL_ZONE}${formData.mainImage}`} className="w-full h-full object-cover" />
+                <img src={`${PULL_ZONE}${formData.mainImage}`} className="w-full h-full object-cover" alt="Main" />
               </div>
             )}
           </div>
@@ -81,7 +102,7 @@ export default function ProjectForm({ initialData }: { initialData?: any }) {
             <ImageUploader folder="Proyectos" label="Subir fondo (Wide)" onUploadSuccess={(name) => setFormData({...formData, bgImage: name})} />
             {formData.bgImage && (
               <div className="relative h-48 rounded-3xl overflow-hidden border-4 border-white shadow-xl">
-                <img src={`${PULL_ZONE}${formData.bgImage}`} className="w-full h-full object-cover" />
+                <img src={`${PULL_ZONE}${formData.bgImage}`} className="w-full h-full object-cover" alt="Background" />
               </div>
             )}
           </div>
@@ -97,8 +118,8 @@ export default function ProjectForm({ initialData }: { initialData?: any }) {
         
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-4">
           {formData.projectPage.gallery.map((img: any, i: number) => (
-            <div key={i} className="group relative aspect-square rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
-              <img src={`${PULL_ZONE}${img.src}`} className="w-full h-full object-cover" />
+            <div key={i} className="group relative aspect-square rounded-2xl overflow-hidden border border-slate-200 shadow-sm text-slate-900">
+              <img src={`${PULL_ZONE}${img.src}`} className="w-full h-full object-cover" alt="Gallery item" />
               <button type="button" onClick={() => removeGalleryImage(i)} className="absolute inset-0 bg-red-600/80 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center font-black text-[10px] transition-all">QUITAR</button>
             </div>
           ))}
@@ -120,13 +141,13 @@ export default function ProjectForm({ initialData }: { initialData?: any }) {
           <h3 className="text-emerald-700 font-black">🇪🇸 CASTELLANO</h3>
           <input 
             placeholder="Nombre del Proyecto"
-            className="w-full text-3xl font-black bg-transparent border-b-4 border-emerald-200 outline-none pb-2 focus:border-emerald-500"
+            className="w-full text-3xl font-black bg-transparent border-b-4 border-emerald-200 outline-none pb-2 focus:border-emerald-500 text-slate-900"
             value={formData.projectName.es}
             onChange={e => setFormData({...formData, projectName: {...formData.projectName, es: e.target.value}})}
           />
           <textarea 
             placeholder="Meta Description SEO"
-            className="w-full p-4 bg-white rounded-2xl border border-emerald-100 text-sm shadow-sm"
+            className="w-full p-4 bg-white rounded-2xl border border-emerald-100 text-sm shadow-sm text-slate-900"
             rows={2}
             value={formData.projectPage.pageDescription.es}
             onChange={e => setFormData({...formData, projectPage: {...formData.projectPage, pageDescription: {...formData.projectPage.pageDescription, es: e.target.value}}})}
@@ -137,13 +158,13 @@ export default function ProjectForm({ initialData }: { initialData?: any }) {
           <h3 className="text-blue-700 font-black">🇬🇧 ENGLISH</h3>
           <input 
             placeholder="Project Name"
-            className="w-full text-3xl font-black bg-transparent border-b-4 border-blue-200 outline-none pb-2 focus:border-blue-500"
+            className="w-full text-3xl font-black bg-transparent border-b-4 border-blue-200 outline-none pb-2 focus:border-blue-500 text-slate-900"
             value={formData.projectName.en}
             onChange={e => setFormData({...formData, projectName: {...formData.projectName, en: e.target.value}})}
           />
           <textarea 
             placeholder="Meta Description SEO EN"
-            className="w-full p-4 bg-white rounded-2xl border border-blue-100 text-sm shadow-sm"
+            className="w-full p-4 bg-white rounded-2xl border border-blue-100 text-sm shadow-sm text-slate-900"
             rows={2}
             value={formData.projectPage.pageDescription.en}
             onChange={e => setFormData({...formData, projectPage: {...formData.projectPage, pageDescription: {...formData.projectPage.pageDescription, en: e.target.value}}})}
@@ -172,19 +193,19 @@ export default function ProjectForm({ initialData }: { initialData?: any }) {
         <div className="bg-white border-2 border-slate-100 p-8 rounded-[2.5rem]">
           <h4 className="font-black text-slate-800 mb-4 uppercase text-xs tracking-widest">💎 Materiales</h4>
           <textarea 
-            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-mono h-32"
+            className="w-full p-4 bg-slate-50 border border-slate-100 rounded-2xl text-xs font-mono h-32 text-slate-900"
             placeholder="Material 1, Material 2..."
             value={formData.projectPage.materials.join(", ")}
-            onChange={e => setFormData({...formData, projectPage: {...formData.projectPage, materials: e.target.value.split(", ")}})}
+            onChange={e => setFormData({...formData, projectPage: {...formData.projectPage, materials: e.target.value.split(", ").filter(m => m !== "")}})}
           />
         </div>
 
         <div className="bg-slate-900 p-8 rounded-[2.5rem] text-white">
           <h4 className="font-black mb-6 uppercase text-xs tracking-widest text-slate-500">⚙️ Slugs & Filtro</h4>
           <div className="grid grid-cols-2 gap-4">
-            <input className="bg-slate-800 border-none rounded-xl p-3 text-xs font-mono" placeholder="slug-es" value={formData.slug_es} onChange={e => setFormData({...formData, slug_es: e.target.value})} />
-            <input className="bg-slate-800 border-none rounded-xl p-3 text-xs font-mono" placeholder="slug-en" value={formData.slug_en} onChange={e => setFormData({...formData, slug_en: e.target.value})} />
-            <input className="bg-slate-800 border-none rounded-xl p-3 text-xs font-bold col-span-2" placeholder="Filtro: Vivienda Privada" value={formData.projectPage.filtro} onChange={e => setFormData({...formData, projectPage: {...formData.projectPage, filtro: e.target.value}})} />
+            <input className="bg-slate-800 border-none rounded-xl p-3 text-xs font-mono text-emerald-400" placeholder="slug-es" value={formData.slug_es} onChange={e => setFormData({...formData, slug_es: e.target.value})} />
+            <input className="bg-slate-800 border-none rounded-xl p-3 text-xs font-mono text-blue-400" placeholder="slug-en" value={formData.slug_en} onChange={e => setFormData({...formData, slug_en: e.target.value})} />
+            <input className="bg-slate-800 border-none rounded-xl p-3 text-xs font-bold col-span-2 text-white" placeholder="Filtro: Vivienda Privada" value={formData.projectPage.filtro} onChange={e => setFormData({...formData, projectPage: {...formData.projectPage, filtro: e.target.value}})} />
           </div>
         </div>
       </section>

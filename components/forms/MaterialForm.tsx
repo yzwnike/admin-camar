@@ -12,7 +12,7 @@ export default function MaterialForm({ initialData }: { initialData?: any }) {
   const PULL_ZONE = "https://lanzadera-digital.b-cdn.net/camar.es/Materiales/"
 
   const [formData, setFormData] = useState({
-    id: initialData?.id || null,
+    id: initialData?.id || '',
     material_name: initialData?.material_name || '',
     material_type: initialData?.material_type || { es: '', en: '' },
     location: initialData?.location || { es: '', en: '' },
@@ -21,20 +21,39 @@ export default function MaterialForm({ initialData }: { initialData?: any }) {
     main_image: initialData?.main_image || ''
   })
 
+  // Función para manejar el envío de forma segura
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
-    const result = await upsertMaterialAction(formData)
+    try {
+      // Creamos un FormData real para enviarlo a la Server Action
+      const data = new FormData()
+      data.append('id', formData.id)
+      data.append('material_name', formData.material_name)
+      data.append('main_image', formData.main_image)
+      
+      // Enviamos los objetos complejos como JSON strings
+      data.append('material_type', JSON.stringify(formData.material_type))
+      data.append('location', JSON.stringify(formData.location))
+      data.append('description', JSON.stringify(formData.description))
+      data.append('use', JSON.stringify(formData.use))
 
-    if (!result.success) {
-      alert("Error al guardar: " + result.error)
-    } else {
-      alert("¡Material guardado con éxito!")
-      router.push('/admin/materials')
-      router.refresh()
+      const result = await upsertMaterialAction(data)
+
+      if (result?.error) {
+        alert("Error al guardar: " + result.error)
+      } else {
+        alert("¡Material guardado con éxito!")
+        router.push('/admin/materials')
+        router.refresh()
+      }
+    } catch (err) {
+      console.error(err)
+      alert("Error crítico en el formulario")
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   return (
@@ -77,7 +96,7 @@ export default function MaterialForm({ initialData }: { initialData?: any }) {
         <div className="space-y-3">
           <label className="text-xs font-black uppercase text-slate-500 tracking-widest ml-2">Nombre Comercial</label>
           <input 
-            className="w-full p-5 bg-white border-2 border-slate-100 rounded-[2rem] font-bold text-2xl outline-none focus:border-blue-500 transition-all shadow-sm"
+            className="w-full p-5 bg-white border-2 border-slate-100 rounded-[2rem] font-bold text-2xl outline-none focus:border-blue-500 transition-all shadow-sm text-slate-900"
             value={formData.material_name}
             onChange={e => setFormData({...formData, material_name: e.target.value})}
             placeholder="Ej: Cuarcita Monterra"
@@ -89,7 +108,7 @@ export default function MaterialForm({ initialData }: { initialData?: any }) {
           <div className="space-y-3">
             <label className="text-xs font-black uppercase text-slate-500 tracking-widest ml-2">Tipo (ES)</label>
             <input 
-              className="w-full p-5 bg-white border-2 border-slate-100 rounded-[2rem] outline-none focus:border-blue-500 font-bold"
+              className="w-full p-5 bg-white border-2 border-slate-100 rounded-[2rem] outline-none focus:border-blue-500 font-bold text-slate-900"
               value={formData.material_type.es}
               onChange={e => setFormData({...formData, material_type: {...formData.material_type, es: e.target.value}})}
               placeholder="Mármol"
@@ -98,7 +117,7 @@ export default function MaterialForm({ initialData }: { initialData?: any }) {
           <div className="space-y-3">
             <label className="text-xs font-black uppercase text-slate-500 tracking-widest ml-2">Type (EN)</label>
             <input 
-              className="w-full p-5 bg-white border-2 border-slate-100 rounded-[2rem] outline-none focus:border-blue-500 font-bold"
+              className="w-full p-5 bg-white border-2 border-slate-100 rounded-[2rem] outline-none focus:border-blue-500 font-bold text-slate-900"
               value={formData.material_type.en}
               onChange={e => setFormData({...formData, material_type: {...formData.material_type, en: e.target.value}})}
               placeholder="Marble"
@@ -112,8 +131,8 @@ export default function MaterialForm({ initialData }: { initialData?: any }) {
          <div className="space-y-3">
             <label className="text-xs font-black uppercase text-slate-500 tracking-widest ml-2">País de Origen</label>
             <div className="flex gap-4">
-              <input className="flex-1 p-5 bg-white border-2 border-slate-100 rounded-[2rem] outline-none focus:border-blue-500" placeholder="ES" value={formData.location.es} onChange={e => setFormData({...formData, location: {...formData.location, es: e.target.value}})} />
-              <input className="flex-1 p-5 bg-white border-2 border-slate-100 rounded-[2rem] outline-none focus:border-blue-500" placeholder="EN" value={formData.location.en} onChange={e => setFormData({...formData, location: {...formData.location, en: e.target.value}})} />
+              <input className="flex-1 p-5 bg-white border-2 border-slate-100 rounded-[2rem] outline-none focus:border-blue-500 text-slate-900" placeholder="ES" value={formData.location.es} onChange={e => setFormData({...formData, location: {...formData.location, es: e.target.value}})} />
+              <input className="flex-1 p-5 bg-white border-2 border-slate-100 rounded-[2rem] outline-none focus:border-blue-500 text-slate-900" placeholder="EN" value={formData.location.en} onChange={e => setFormData({...formData, location: {...formData.location, en: e.target.value}})} />
             </div>
          </div>
 
@@ -140,14 +159,14 @@ export default function MaterialForm({ initialData }: { initialData?: any }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         <textarea 
           rows={5}
-          className="w-full p-6 bg-white border-2 border-slate-100 rounded-[2.5rem] outline-none focus:border-blue-500"
+          className="w-full p-6 bg-white border-2 border-slate-100 rounded-[2.5rem] outline-none focus:border-blue-500 text-slate-900"
           value={formData.description.es}
           onChange={e => setFormData({...formData, description: {...formData.description, es: e.target.value}})}
           placeholder="Descripción Castellano"
         />
         <textarea 
           rows={5}
-          className="w-full p-6 bg-white border-2 border-slate-100 rounded-[2.5rem] outline-none focus:border-blue-500"
+          className="w-full p-6 bg-white border-2 border-slate-100 rounded-[2.5rem] outline-none focus:border-blue-500 text-slate-900"
           value={formData.description.en}
           onChange={e => setFormData({...formData, description: {...formData.description, en: e.target.value}})}
           placeholder="Description English"
@@ -160,7 +179,7 @@ export default function MaterialForm({ initialData }: { initialData?: any }) {
           disabled={loading}
           className="w-full max-w-2xl py-6 bg-slate-900 text-white rounded-[2.5rem] font-black text-2xl hover:bg-emerald-600 transition-all shadow-xl disabled:opacity-50"
         >
-          {loading ? '📦 GUARDANDO...' : '💎 ACTUALIZAR MATERIAL'}
+          {loading ? '📦 GUARDANDO...' : (initialData?.id ? '💎 ACTUALIZAR MATERIAL' : '💎 CREAR MATERIAL')}
         </button>
       </div>
     </form>
