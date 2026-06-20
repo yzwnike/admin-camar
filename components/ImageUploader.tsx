@@ -13,10 +13,10 @@ export default function ImageUploader({ folder, onUploadSuccess, label }: Props)
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.[0]) return
-    
+
     setStatus('uploading')
     const file = e.target.files[0]
-    
+
     // Limpieza de nombre: "Casa Irlanda.JPG" -> "casa-irlanda.jpg"
     const cleanName = file.name.toLowerCase()
       .replace(/\s+/g, '-')
@@ -43,21 +43,21 @@ export default function ImageUploader({ folder, onUploadSuccess, label }: Props)
   }
 
   return (
-    <div className={`relative border-2 border-dashed rounded-3xl p-6 transition-all cursor-pointer
-      ${status === 'uploading' ? 'border-blue-400 bg-blue-50' : 
-        status === 'success' ? 'border-emerald-400 bg-emerald-50' : 'border-slate-200 bg-slate-50 hover:bg-white'}`}>
-      
-      <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleUpload} disabled={status === 'uploading'} />
-      
+    <div className={`relative flex min-h-full cursor-pointer items-center justify-center rounded-md border-2 border-dashed p-6 default-transition
+      ${status === 'uploading' ? 'border-bubonicBrown bg-bubonicBrown/5' :
+        status === 'success' ? 'border-green-500 bg-green-50' : 'border-dynamicBlack/15 bg-white hover:bg-secondaryGray'}`}>
+
+      <input type="file" className="absolute inset-0 cursor-pointer opacity-0" onChange={handleUpload} disabled={status === 'uploading'} />
+
       <div className="text-center">
         {status === 'idle' && (
           <>
-            <p className="text-xs font-black text-slate-400 uppercase tracking-tighter">{label || `Subir a ${folder}`}</p>
-            <p className="text-[10px] text-slate-300 mt-1">Arrastra o haz click aquí</p>
+            <p className="font-vollkorn text-xs uppercase tracking-wide text-dynamicBlack/70">{label || `Subir a ${folder}`}</p>
+            <p className="mt-1 text-[10px] text-dynamicBlack/40">Arrastra o haz clic aquí</p>
           </>
         )}
-        {status === 'uploading' && <p className="text-xs font-bold text-blue-600 animate-bounce tracking-widest">SUBIENDO...</p>}
-        {status === 'success' && <p className="text-xs font-bold text-emerald-600 tracking-widest">¡SUBIDO CON ÉXITO!</p>}
+        {status === 'uploading' && <p className="animate-bounce text-xs font-bold uppercase tracking-widest text-bubonicBrown">Subiendo...</p>}
+        {status === 'success' && <p className="text-xs font-bold uppercase tracking-widest text-green-700">¡Subido con éxito!</p>}
       </div>
     </div>
   )

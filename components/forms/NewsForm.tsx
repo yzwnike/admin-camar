@@ -9,13 +9,13 @@ import { deleteFileFromBunny } from '@/lib/bunny-actions'
 interface Props {
   initialData?: any
   isEditing?: boolean
-  existingFolder?: string 
+  existingFolder?: string
 }
 
 export default function NewsForm({ initialData, isEditing, existingFolder }: Props) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  
+
   const PULL_ZONE = "https://lanzadera-digital.b-cdn.net"
 
   // 1. PRIORIDAD ABSOLUTA: folder_custom de la base de datos
@@ -44,7 +44,7 @@ export default function NewsForm({ initialData, isEditing, existingFolder }: Pro
     gallery: parseSafe(initialData?.gallery, [])
   })
 
-  const slugify = (text: string) => 
+  const slugify = (text: string) =>
     text.toLowerCase().trim()
       .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
       .replace(/[^\w\s-]/g, '').replace(/[\s_-]+/g, '-')
@@ -52,7 +52,7 @@ export default function NewsForm({ initialData, isEditing, existingFolder }: Pro
 
   // 2. SOLO GENERAR FOLDER SI ES NUEVA NOTICIA
   useEffect(() => {
-    if (isEditing || folderName) return; 
+    if (isEditing || folderName) return;
     if (formData.title.es) {
       setFolderName(slugify(formData.title.es));
     }
@@ -70,7 +70,7 @@ export default function NewsForm({ initialData, isEditing, existingFolder }: Pro
     setFormData(prev => ({
       ...prev,
       title: { ...prev.title, es: val },
-      slug_es: slugify(val) 
+      slug_es: slugify(val)
     }));
   }
 
@@ -101,10 +101,10 @@ export default function NewsForm({ initialData, isEditing, existingFolder }: Pro
       data.append('id', formData.id)
       data.append('slug_es', formData.slug_es)
       data.append('slug_en', formData.slug_en || slugify(formData.title.en || formData.slug_es))
-      
+
       // 4. GUARDAR EXPLÍCITAMENTE folder_custom
-      data.append('folder_custom', folderName) 
-      
+      data.append('folder_custom', folderName)
+
       data.append('date', formData.date)
       data.append('main_image', formData.main_image)
       data.append('title', JSON.stringify(formData.title))
@@ -123,74 +123,69 @@ export default function NewsForm({ initialData, isEditing, existingFolder }: Pro
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-12 pb-32">
-      
+    <form onSubmit={handleSubmit} className="space-y-10 pb-32">
+
       {/* INFO RUTA - Debug Visual */}
-      <section className="bg-slate-900 p-6 rounded-[2.5rem] border border-slate-800 shadow-2xl">
-        <div className="flex items-center gap-5">
-          <div className="bg-emerald-500/10 w-12 h-12 rounded-2xl flex items-center justify-center text-emerald-500 border border-emerald-500/20">
-            {isEditing ? '🔒' : '📂'}
-          </div>
-          <div>
-            <p className="text-[10px] font-black uppercase text-slate-500 tracking-[0.3em]">
-              Storage Path (folder_custom)
-            </p>
-            <p className="font-mono text-xs text-emerald-400">/Noticias/{folderName || 'generando...'}/</p>
-          </div>
+      <section className="rounded-xl border border-secondaryBlack bg-dynamicBlack p-6">
+        <div>
+          <p className="text-[10px] uppercase tracking-[0.3em] text-baliPearl/50">
+            Storage Path (folder_custom)
+          </p>
+          <p className="mt-1 font-mono text-xs text-bubonicBrown">/Noticias/{folderName || 'generando...'}/</p>
         </div>
       </section>
 
       {/* MULTIMEDIA */}
-      <section className="bg-slate-50 p-8 rounded-[3.5rem] border border-slate-200 shadow-inner">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
-          
-          <div className="lg:col-span-1 space-y-4">
-            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Portada</label>
-            <div className="aspect-[4/5] bg-white rounded-[2.5rem] overflow-hidden border-2 border-slate-200 relative group shadow-lg">
+      <section className="rounded-xl border border-dynamicBlack/10 bg-baliPearl p-8">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-4">
+
+          <div className="space-y-4 lg:col-span-1">
+            <label className="label">Portada</label>
+            <div className="group relative aspect-4/5 overflow-hidden rounded-xl border border-dynamicBlack/10 bg-white">
               {formData.main_image ? (
                 <>
-                  <img src={getImageUrl(formData.main_image)} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Main" />
-                  <button 
+                  <img src={getImageUrl(formData.main_image)} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110" alt="Main" />
+                  <button
                     type="button"
                     onClick={() => handleDeleteImage(formData.main_image, false)}
-                    className="absolute inset-0 bg-red-600/90 opacity-0 group-hover:opacity-100 transition-all flex flex-col items-center justify-center text-white"
+                    className="absolute inset-0 flex flex-col items-center justify-center bg-red-600/90 text-baliPearl opacity-0 default-transition group-hover:opacity-100"
                   >
-                    <span className="font-black text-xs">ELIMINAR ARCHIVO</span>
+                    <span className="text-xs font-bold uppercase tracking-wide">Eliminar archivo</span>
                   </button>
                 </>
               ) : (
-                <div className="flex items-center justify-center h-full text-[10px] text-slate-300 font-bold uppercase p-10 text-center italic leading-relaxed">Sube la portada principal</div>
+                <div className="flex h-full items-center justify-center p-10 text-center text-[10px] uppercase italic leading-relaxed text-dynamicBlack/30">Sube la portada principal</div>
               )}
             </div>
-            <ImageUploader 
-              folder={`Noticias/${folderName}` as any} 
-              onUploadSuccess={(file) => setFormData({...formData, main_image: file})} 
+            <ImageUploader
+              folder={`Noticias/${folderName}` as any}
+              onUploadSuccess={(file) => setFormData({...formData, main_image: file})}
             />
           </div>
-          
-          <div className="lg:col-span-3 space-y-4">
-            <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest ml-1">Galería de Imágenes</label>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+
+          <div className="space-y-4 lg:col-span-3">
+            <label className="label">Galería de imágenes</label>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
               {formData.gallery.map((item: any, idx: number) => {
                 const src = typeof item === 'string' ? item : item.src;
                 return (
-                  <div key={idx} className="aspect-square bg-white rounded-3xl overflow-hidden border border-slate-200 relative group shadow-sm hover:shadow-md transition-shadow">
-                    <img src={getImageUrl(src)} className="w-full h-full object-cover" alt={`Gal ${idx}`} />
-                    <button 
-                      type="button" 
-                      onClick={() => handleDeleteImage(src, true, idx)} 
-                      className="absolute inset-0 bg-red-600/95 text-white opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center font-black text-[9px]"
+                  <div key={idx} className="group relative aspect-square overflow-hidden rounded-md border border-dynamicBlack/10 bg-white">
+                    <img src={getImageUrl(src)} className="h-full w-full object-cover" alt={`Gal ${idx}`} />
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteImage(src, true, idx)}
+                      className="absolute inset-0 flex items-center justify-center bg-red-600/95 text-[9px] font-bold uppercase tracking-wide text-baliPearl opacity-0 default-transition group-hover:opacity-100"
                     >
-                      BORRAR
+                      Borrar
                     </button>
                   </div>
                 )
               })}
               <div className="aspect-square">
-                <ImageUploader 
-                  folder={`Noticias/${folderName}` as any} 
+                <ImageUploader
+                  folder={`Noticias/${folderName}` as any}
                   label="+"
-                  onUploadSuccess={(file) => setFormData({...formData, gallery: [...formData.gallery, { src: file, type: 'image' }]})} 
+                  onUploadSuccess={(file) => setFormData({...formData, gallery: [...formData.gallery, { src: file, type: 'image' }]})}
                 />
               </div>
             </div>
@@ -199,24 +194,25 @@ export default function NewsForm({ initialData, isEditing, existingFolder }: Pro
       </section>
 
       {/* CONTENIDO IDIOMAS */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
+      <div className="grid grid-cols-1 gap-8 xl:grid-cols-2">
         {/* Castellano */}
-        <section className="space-y-8 bg-white p-10 rounded-[3rem] border border-slate-100 shadow-sm">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="w-4 h-4 bg-yellow-400 rounded-full shadow-[0_0_15px_rgba(250,204,21,0.5)]"></span>
-            <span className="text-xs font-black uppercase tracking-widest text-slate-400">Castellano</span>
+        <section className="card space-y-6">
+          <div className="flex items-center gap-3">
+            <span className="h-3 w-3 rounded-full bg-bubonicBrown"></span>
+            <span className="font-vollkorn text-sm uppercase tracking-widest text-dynamicBlack/60">Castellano</span>
           </div>
-          <div className="space-y-6">
-            <input 
-              placeholder="Título de la noticia..."
-              className="w-full text-4xl font-black bg-transparent border-b-2 border-slate-50 focus:border-yellow-400 outline-none pb-6 transition-all text-slate-900 placeholder:text-slate-100"
-              value={formData.title.es}
-              onChange={(e) => handleTitleChange(e.target.value)}
-              required
-            />
-            <textarea 
+          <input
+            placeholder="Título de la noticia..."
+            className="w-full border-0 border-b-2 border-dynamicBlack/10 bg-transparent pb-4 font-vollkorn text-4xl text-dynamicBlack outline-none default-transition placeholder:text-dynamicBlack/20 focus:border-bubonicBrown"
+            value={formData.title.es}
+            onChange={(e) => handleTitleChange(e.target.value)}
+            required
+          />
+          <div>
+            <label className="label">Contenido (Markdown)</label>
+            <textarea
               placeholder="Cuerpo de la noticia..."
-              className="w-full p-10 bg-white rounded-[3rem] border border-slate-200 outline-none font-serif text-lg min-h-[500px] text-slate-800 leading-loose"
+              className="input min-h-120 leading-relaxed"
               value={formData.content.es}
               onChange={(e) => setFormData({...formData, content: {...formData.content, es: e.target.value}})}
             />
@@ -224,21 +220,22 @@ export default function NewsForm({ initialData, isEditing, existingFolder }: Pro
         </section>
 
         {/* Inglés */}
-        <section className="space-y-8 bg-slate-50/50 p-10 rounded-[3rem] border border-slate-200/50">
-          <div className="flex items-center gap-3 mb-4">
-            <span className="w-4 h-4 bg-blue-600 rounded-full"></span>
-            <span className="text-xs font-black uppercase tracking-widest text-slate-400">English</span>
+        <section className="card space-y-6 bg-baliPearl">
+          <div className="flex items-center gap-3">
+            <span className="h-3 w-3 rounded-full bg-dynamicBlack"></span>
+            <span className="font-vollkorn text-sm uppercase tracking-widest text-dynamicBlack/60">English</span>
           </div>
-          <div className="space-y-6">
-            <input 
-              placeholder="News headline..."
-              className="w-full text-4xl font-black bg-transparent border-b-2 border-slate-50 focus:border-blue-600 outline-none pb-6 transition-all text-slate-900 placeholder:text-slate-100"
-              value={formData.title.en}
-              onChange={(e) => setFormData({...formData, title: {...formData.title, en: e.target.value}})}
-            />
-            <textarea 
+          <input
+            placeholder="News headline..."
+            className="w-full border-0 border-b-2 border-dynamicBlack/10 bg-transparent pb-4 font-vollkorn text-4xl text-dynamicBlack outline-none default-transition placeholder:text-dynamicBlack/20 focus:border-dynamicBlack"
+            value={formData.title.en}
+            onChange={(e) => setFormData({...formData, title: {...formData.title, en: e.target.value}})}
+          />
+          <div>
+            <label className="label">Content (Markdown)</label>
+            <textarea
               placeholder="News body content..."
-              className="w-full p-10 bg-white rounded-[3rem] border border-slate-200 outline-none font-serif text-lg min-h-[500px] text-slate-800 leading-loose"
+              className="input min-h-120 leading-relaxed"
               value={formData.content.en}
               onChange={(e) => setFormData({...formData, content: {...formData.content, en: e.target.value}})}
             />
@@ -247,34 +244,30 @@ export default function NewsForm({ initialData, isEditing, existingFolder }: Pro
       </div>
 
       {/* FECHA Y SLUG */}
-      <section className="grid grid-cols-1 md:grid-cols-2 gap-8 bg-slate-950 p-12 rounded-[4rem] text-white shadow-2xl">
-        <div className="space-y-4">
-          <label className="text-[10px] font-black uppercase text-slate-500 tracking-[0.3em] ml-2">Slug English (SEO)</label>
-          <input 
-            className="w-full bg-slate-900 border border-slate-800 rounded-[1.5rem] p-5 text-sm font-mono text-blue-400 outline-none focus:border-blue-500/50 transition-colors" 
-            value={formData.slug_en} 
-            onChange={e => setFormData({...formData, slug_en: slugify(e.target.value)})} 
+      <section className="grid grid-cols-1 gap-8 rounded-xl border border-secondaryBlack bg-dynamicBlack p-10 md:grid-cols-2">
+        <div>
+          <label className="label text-baliPearl/50!">Slug English (SEO)</label>
+          <input
+            className="w-full rounded-md border border-secondaryBlack bg-secondaryBlack/50 p-4 font-mono text-sm text-bubonicBrown outline-none default-transition focus:border-bubonicBrown"
+            value={formData.slug_en}
+            onChange={e => setFormData({...formData, slug_en: slugify(e.target.value)})}
           />
         </div>
-        <div className="space-y-4">
-          <label className="text-[10px] font-black uppercase text-slate-500 tracking-[0.3em] ml-2">Fecha de Publicación</label>
-          <input 
-            type="date" 
-            className="w-full bg-slate-900 border border-slate-800 rounded-[1.5rem] p-5 text-sm outline-none text-white focus:border-emerald-500/50 transition-colors [color-scheme:dark]" 
-            value={formData.date} 
-            onChange={e => setFormData({...formData, date: e.target.value})} 
+        <div>
+          <label className="label text-baliPearl/50!">Fecha de publicación</label>
+          <input
+            type="date"
+            className="w-full rounded-md border border-secondaryBlack bg-secondaryBlack/50 p-4 text-sm text-baliPearl outline-none default-transition focus:border-bubonicBrown scheme-dark"
+            value={formData.date}
+            onChange={e => setFormData({...formData, date: e.target.value})}
           />
         </div>
       </section>
 
       {/* BOTÓN FLOTANTE */}
-      <div className="fixed bottom-12 left-1/2 -translate-x-1/2 w-full max-w-lg px-8 z-[100]">
-        <button 
-          type="submit" 
-          disabled={loading}
-          className="w-full py-7 bg-emerald-500 text-white rounded-full font-black text-xl hover:bg-emerald-400 hover:scale-[1.02] transition-all shadow-[0_20px_50px_rgba(16,185,129,0.4)] active:scale-95 disabled:opacity-50 uppercase tracking-tighter"
-        >
-          {loading ? 'GUARDANDO CAMBIOS...' : (isEditing ? '💾 ACTUALIZAR NOTICIA' : '🚀 PUBLICAR NOTICIA')}
+      <div className="fixed bottom-10 left-1/2 z-100 w-full max-w-md -translate-x-1/2 px-8">
+        <button type="submit" disabled={loading} className="btn-gold w-full py-4 text-lg shadow-2xl">
+          {loading ? 'Guardando cambios...' : (isEditing ? 'Actualizar noticia' : 'Publicar noticia')}
         </button>
       </div>
     </form>

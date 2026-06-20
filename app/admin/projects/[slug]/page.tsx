@@ -169,97 +169,96 @@ export default async function EditProjectPage({ params }: { params: Promise<{ sl
   const PROJECT_TYPES = ["Hoteles", "Vivienda Privada", "Proyectos Singulares", "Fuentes", "Proyectos Religiosos", "Otro"];
 
   return (
-    <div className="max-w-6xl mx-auto p-6 pb-20">
+    <div className="mx-auto max-w-6xl pb-20">
       <form action={updateProjectAction}>
         <input type="hidden" name="id" value={p.id} />
-        
-        <div className="flex justify-between items-end mb-10">
+
+        <div className="mb-10 flex items-end justify-between">
           <div className="space-y-2">
-            <Link href="/admin/projects" className="group flex items-center gap-2 text-slate-400 text-[10px] font-black uppercase tracking-widest hover:text-slate-900 transition-colors">
-              <span className="text-lg group-hover:-translate-x-1 transition-transform">←</span> Volver al listado
+            <Link href="/admin/projects" className="group flex items-center gap-2 text-[10px] uppercase tracking-widest text-dynamicBlack/50 default-transition hover:text-dynamicBlack">
+              <span className="text-lg default-transition group-hover:-translate-x-1">←</span> Volver al listado
             </Link>
-            <h1 className="text-5xl font-black text-slate-900 uppercase tracking-tighter leading-none italic">
-              {nameData.es || "Sin Nombre"}
+            <h1 className="font-vollkorn text-5xl uppercase leading-none tracking-tight text-dynamicBlack">
+              {nameData.es || "Sin nombre"}
             </h1>
           </div>
-          <button type="submit" className="bg-emerald-500 text-white px-10 py-5 rounded-2xl font-black hover:bg-emerald-600 transition shadow-xl uppercase text-[10px] tracking-widest active:scale-95">
-            💾 Guardar Cambios
+          <button type="submit" className="btn-primary">
+            Guardar cambios
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          <div className="lg:col-span-8 space-y-10">
-            
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+          <div className="space-y-10 lg:col-span-8">
+
             {/* IDENTIDAD */}
-            <section className="bg-slate-900 rounded-[3rem] p-10 text-white shadow-xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-white/5 rounded-bl-full pointer-events-none"></div>
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-8 flex items-center gap-2 italic">
-                <span className="w-2 h-2 bg-emerald-500 rounded-full"></span> Identidad Principal
+            <section className="rounded-xl border border-secondaryBlack bg-dynamicBlack p-10 text-baliPearl">
+              <h3 className="mb-8 flex items-center gap-2 font-vollkorn text-sm uppercase tracking-widest text-baliPearl/60">
+                <span className="h-2 w-2 rounded-full bg-bubonicBrown"></span> Identidad principal
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase text-slate-500 ml-2 tracking-widest">Nombre Comercial</label>
-                  <input name="project_name_es" type="text" defaultValue={nameData.es} className="w-full p-4 bg-slate-800 rounded-2xl border-none font-bold text-white mb-2 focus:ring-2 focus:ring-emerald-500 outline-none" />
-                  <input name="project_name_en" type="text" defaultValue={nameData.en} className="w-full p-4 bg-slate-800 rounded-2xl border-none font-bold text-emerald-400 focus:ring-2 focus:ring-emerald-500 outline-none" />
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                <div className="space-y-3">
+                  <label className="block text-[10px] uppercase tracking-wide text-baliPearl/50">Nombre comercial</label>
+                  <input name="project_name_es" type="text" defaultValue={nameData.es} className="w-full rounded-md border border-secondaryBlack bg-secondaryBlack/50 p-3 text-baliPearl outline-none default-transition focus:border-bubonicBrown" />
+                  <input name="project_name_en" type="text" defaultValue={nameData.en} className="w-full rounded-md border border-secondaryBlack bg-secondaryBlack/50 p-3 text-baliPearl outline-none default-transition focus:border-bubonicBrown" />
                 </div>
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase text-slate-500 ml-2 tracking-widest">Ubicación</label>
-                  <input name="project_location_es" type="text" defaultValue={locData.es} className="w-full p-4 bg-slate-800 rounded-2xl border-none font-bold text-white mb-2 focus:ring-2 focus:ring-emerald-500 outline-none" />
-                  <input name="project_location_en" type="text" defaultValue={locData.en} className="w-full p-4 bg-slate-800 rounded-2xl border-none font-bold text-emerald-400 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                <div className="space-y-3">
+                  <label className="block text-[10px] uppercase tracking-wide text-baliPearl/50">Ubicación</label>
+                  <input name="project_location_es" type="text" defaultValue={locData.es} className="w-full rounded-md border border-secondaryBlack bg-secondaryBlack/50 p-3 text-baliPearl outline-none default-transition focus:border-bubonicBrown" />
+                  <input name="project_location_en" type="text" defaultValue={locData.en} className="w-full rounded-md border border-secondaryBlack bg-secondaryBlack/50 p-3 text-baliPearl outline-none default-transition focus:border-bubonicBrown" />
                 </div>
               </div>
             </section>
 
             {/* GALERÍA DINÁMICA */}
-            <ProjectGalleryEditor 
-              initialGallery={gallery} 
-              initialMain={p.main_image} 
+            <ProjectGalleryEditor
+              initialGallery={gallery}
+              initialMain={p.main_image}
               initialBg={pg.bg_image || ""}
               bunnyConfig={bunnyConfig}
               projectName={nameData.es}
-              existingFolder={detectedFolder} 
+              existingFolder={detectedFolder}
             />
 
             {/* TEXTOS Y SEO */}
-            <section className="bg-white rounded-[3rem] p-10 border border-slate-200 shadow-sm space-y-8">
-              <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 italic">
-                <span className="w-2 h-2 bg-indigo-500 rounded-full"></span> Títulos y Descripción
+            <section className="card space-y-6">
+              <h3 className="flex items-center gap-2 font-vollkorn text-sm uppercase tracking-widest text-dynamicBlack/60">
+                <span className="h-2 w-2 rounded-full bg-bubonicBrown"></span> Títulos y descripción
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Título de Página (H1)</label>
-                  <input name="title_es" type="text" defaultValue={pageTitle.es} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold mb-2 focus:ring-2 focus:ring-slate-900 outline-none" />
-                  <input name="title_en" type="text" defaultValue={pageTitle.en} className="w-full p-4 bg-indigo-50/50 rounded-2xl border-none font-bold text-indigo-900 focus:ring-2 focus:ring-indigo-500 outline-none" />
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div className="space-y-3">
+                  <label className="label">Título de página (H1)</label>
+                  <input name="title_es" type="text" defaultValue={pageTitle.es} className="input" />
+                  <input name="title_en" type="text" defaultValue={pageTitle.en} className="input" />
                 </div>
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-widest">Sobre el proyecto</label>
-                  <textarea name="sobreElProyecto_es" rows={4} defaultValue={sobreElProyecto.es} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-medium text-sm focus:ring-2 focus:ring-slate-900 resize-none outline-none" />
-                  <textarea name="sobreElProyecto_en" rows={4} defaultValue={sobreElProyecto.en} className="w-full p-4 bg-indigo-50/50 rounded-2xl border-none font-medium text-sm text-indigo-900 focus:ring-2 focus:ring-indigo-500 resize-none outline-none" />
+                <div className="space-y-3">
+                  <label className="label">Sobre el proyecto</label>
+                  <textarea name="sobreElProyecto_es" rows={4} defaultValue={sobreElProyecto.es} className="input resize-none" />
+                  <textarea name="sobreElProyecto_en" rows={4} defaultValue={sobreElProyecto.en} className="input resize-none" />
                 </div>
               </div>
             </section>
           </div>
 
           {/* LATERAL */}
-          <div className="lg:col-span-4 space-y-8">
+          <div className="space-y-8 lg:col-span-4">
             <ProjectMaterialsEditor initialMaterials={materials} />
 
-            <section className="bg-slate-50 rounded-[2.5rem] p-8 border border-slate-200 shadow-inner">
-              <h3 className="text-[10px] font-black uppercase text-slate-400 mb-6 tracking-widest flex items-center gap-2">
-                ⚙️ Ajustes Técnicos
+            <section className="card">
+              <h3 className="mb-6 text-xs uppercase tracking-widest text-dynamicBlack/50">
+                Ajustes técnicos
               </h3>
               <div className="space-y-4">
-                <div className="space-y-1">
-                  <label className="text-[9px] font-black text-slate-500 uppercase ml-1">Tipo de Proyecto</label>
-                  <select 
-                    name="type" 
-                    defaultValue={Array.isArray(p.type) ? p.type[0] : (p.type || "")} 
-                    className="w-full bg-white border border-slate-200 rounded-xl p-3 font-bold text-sm shadow-sm outline-none focus:ring-2 focus:ring-emerald-500"
+                <div>
+                  <label className="label">Tipo de proyecto</label>
+                  <select
+                    name="type"
+                    defaultValue={Array.isArray(p.type) ? p.type[0] : (p.type || "")}
+                    className="input cursor-pointer"
                   >
                     {PROJECT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
                   </select>
                 </div>
-                <div className="pt-4 border-t border-slate-200 text-slate-400 space-y-1 font-mono text-[9px] break-all">
+                <div className="space-y-1 break-all border-t border-dynamicBlack/10 pt-4 font-mono text-[9px] text-dynamicBlack/40">
                   <p>DATABASE ID: {p.id}</p>
                   <p>SLUG: {p.slug}</p>
                 </div>
@@ -270,11 +269,11 @@ export default async function EditProjectPage({ params }: { params: Promise<{ sl
       </form>
 
       {/* ZONA DE ELIMINACIÓN */}
-      <div className="mt-16 pt-10 border-t border-slate-100 flex flex-col items-center">
-        <DeleteProjectButton 
-          id={p.id} 
-          projectName={nameData.es || "este proyecto"} 
-          deleteAction={deleteProjectAction} 
+      <div className="mt-16 flex flex-col items-center border-t border-dynamicBlack/10 pt-10">
+        <DeleteProjectButton
+          id={p.id}
+          projectName={nameData.es || "este proyecto"}
+          deleteAction={deleteProjectAction}
         />
       </div>
     </div>

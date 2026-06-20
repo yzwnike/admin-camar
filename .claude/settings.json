@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node /tmp/introspect.mjs)",
+      "Bash(node introspect.mjs)",
+      "Bash(python3 -)",
+      "Bash(git stash *)",
+      "Bash(npx tsc *)",
+      "Bash(node -e 'fetch\\(\"http://localhost:3000/admin/projects\",{cache:\"no-store\"}\\).then\\(r=>r.text\\(\\)\\).then\\(h=>console.log\\(\"HTTP ok | brand:\",/btn-primary|font-vollkorn|dynamicBlack/.test\\(h\\),\"| old slate present:\",/slate-900|emerald-600/.test\\(h\\),\"| compileError:\",/Build Error|Failed to compile/i.test\\(h\\)\\)\\)')",
+      "Bash(node -e 'fetch\\(\"http://localhost:3000/admin/materials\",{cache:\"no-store\"}\\).then\\(r=>r.text\\(\\)\\).then\\(h=>console.log\\(\"HTTP 200 ok | Editar ficha:\",h.includes\\(\"Editar ficha\"\\),\"| compileError:\",/Build Error|Failed to compile/i.test\\(h\\)\\)\\)')"
+    ]
+  }
+}

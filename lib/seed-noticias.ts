@@ -354,7 +354,7 @@ Link to the news: [Diario Sur](https://www.diariosur.es/marbella-estepona/compra
 ]
 
 export const importarNoticias = async () => {
-  console.log("🚀 Importando Noticias con soporte folder_custom...");
+  console.log(" Importando Noticias con soporte folder_custom...");
 
   try {
     // 1. Ejecutamos el UPSERT usando SQL puro
@@ -374,11 +374,11 @@ export const importarNoticias = async () => {
       RETURNING *
     `;
 
-    console.log(`✅ ¡Éxito! ${data.length} noticias importadas con rutas correctas.`);
+    console.log(` ¡Éxito! ${data.length} noticias importadas con rutas correctas.`);
     return { success: true, count: data.length };
 
   } catch (error: any) {
-    console.error("❌ Error noticias:", error.message);
+    console.error(" Error noticias:", error.message);
     return { success: false, error: error.message };
   }
 }

@@ -14,20 +14,20 @@ export default function ProjectMaterialsEditor({ initialMaterials }: { initialMa
   }
 
   return (
-    <section className="bg-white rounded-[3rem] p-8 border border-slate-200 shadow-sm">
-      <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-4 text-center">Materiales</h3>
-      <div className="flex flex-wrap gap-2 justify-center">
+    <section className="card">
+      <h3 className="mb-4 text-center text-xs uppercase tracking-widest text-dynamicBlack/50">Materiales</h3>
+      <div className="flex flex-wrap justify-center gap-2">
         {materials?.map((m, i) => (
-          <span key={i} className="group px-4 py-2 bg-slate-100 rounded-full text-[10px] font-black text-slate-600 uppercase flex items-center gap-2">
+          <span key={i} className="group flex items-center gap-2 rounded-md bg-secondaryGray px-4 py-2 text-[10px] uppercase tracking-wide text-dynamicBlack/70">
             {m}
-            <button onClick={() => removeMaterial(i)} className="hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity">×</button>
+            <button onClick={() => removeMaterial(i)} className="opacity-0 default-transition hover:text-red-500 group-hover:opacity-100">×</button>
           </span>
         ))}
-        <button 
+        <button
           onClick={addMaterial}
-          className="px-4 py-2 border-2 border-dashed border-slate-200 rounded-full text-[10px] font-black text-slate-400 hover:border-slate-900 hover:text-slate-900 transition"
+          className="rounded-md border-2 border-dashed border-dynamicBlack/15 px-4 py-2 text-[10px] uppercase tracking-wide text-dynamicBlack/50 default-transition hover:border-dynamicBlack hover:text-dynamicBlack"
         >
-          + AÑADIR
+          + Añadir
         </button>
       </div>
       {/* Input oculto para que el formulario envíe los datos actualizados si usas un form */}

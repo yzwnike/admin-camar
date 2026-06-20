@@ -11,7 +11,7 @@ export function CreateProjectForm() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     const trimmedName = name.trim()
     if (!trimmedName || isCreating) return
 
@@ -28,20 +28,20 @@ export function CreateProjectForm() {
         .replace(/[\u0300-\u036f]/g, "")
         .replace(/\s+/g, '-')
         .replace(/[^\w-]/g, '') // Elimina caracteres especiales
-      
+
       const uniqueSlug = `${baseSlug}-${timestamp}`
-      
+
       // 2. Preparamos el FormData
       const data = new FormData()
       data.append('id', '') // Indica creación
       data.append('slug_es', uniqueSlug)
       data.append('slug_en', uniqueSlug)
-      
+
       // Serializamos los objetos para que la Server Action los reciba correctamente
       data.append('projectName', JSON.stringify({ es: trimmedName, en: trimmedName }))
       data.append('projectLocation', JSON.stringify({ es: "", en: "" }))
       data.append('type', JSON.stringify([]))
-      
+
       // Estructura completa de projectPage para evitar campos undefined en el editor
       data.append('projectPage', JSON.stringify({
         filtro: "Vivienda Privada",
@@ -79,25 +79,21 @@ export function CreateProjectForm() {
     <form onSubmit={handleCreate} className="space-y-4">
       <input
         type="text"
-        placeholder="Nombre del Proyecto (ej: Casa Bosque)"
-        className="w-full p-4 bg-slate-900 text-white rounded-2xl border-none focus:ring-2 focus:ring-emerald-500 font-bold placeholder:text-slate-500"
+        placeholder="Nombre del proyecto (ej: Casa Bosque)"
+        className="input"
         value={name}
         onChange={(e) => setName(e.target.value)}
         disabled={isCreating}
         required
       />
-      <button
-        type="submit"
-        disabled={isCreating || !name.trim()}
-        className="w-full py-4 bg-emerald-500 text-white rounded-2xl font-black uppercase tracking-widest hover:bg-emerald-600 transition disabled:opacity-50 active:scale-[0.98] shadow-lg shadow-emerald-500/20"
-      >
+      <button type="submit" disabled={isCreating || !name.trim()} className="btn-primary w-full py-3">
         {isCreating ? (
-          <div className="flex items-center justify-center gap-2">
-            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            <span>Iniciando Editor...</span>
-          </div>
+          <span className="flex items-center justify-center gap-2">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-baliPearl border-t-transparent" />
+            <span>Iniciando editor...</span>
+          </span>
         ) : (
-          "Crear e ir al Editor"
+          "Crear e ir al editor"
         )}
       </button>
     </form>

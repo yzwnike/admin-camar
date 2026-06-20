@@ -39,7 +39,7 @@ export async function uploadFileToBunny(
 
     return { success: false, status: res.status };
   } catch (error) {
-    console.error("❌ Error subiendo a Bunny:", error);
+    console.error(" Error subiendo a Bunny:", error);
     return { success: false, error };
   }
 }
@@ -73,15 +73,15 @@ export async function deleteFileFromBunny(
     });
 
     if (res.ok) {
-      console.log(`✅ Borrado: camar.es/${path}/${cleanFileName}`);
+      console.log(` Borrado: camar.es/${path}/${cleanFileName}`);
       return { success: true };
     }
     
     const errorData = await res.json().catch(() => ({}));
-    console.error("❌ Error Bunny status:", res.status, errorData);
+    console.error(" Error Bunny status:", res.status, errorData);
     return { success: false, status: res.status };
   } catch (error) {
-    console.error("❌ Error en fetch Bunny:", error);
+    console.error(" Error en fetch Bunny:", error);
     return { success: false, error };
   }
 }

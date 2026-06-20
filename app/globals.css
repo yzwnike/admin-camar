@@ -1,26 +1,187 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* ==========================================================================
+   Sistema de diseño Camar — tokens de marca (paridad con la web pública)
+   ========================================================================== */
+@theme {
+  --font-vollkorn: 'Vollkorn', sans-serif;
+  --font-workSans: 'Work Sans', sans-serif;
+  --color-dynamicBlack: #1D1D1D;
+  --color-secondaryBlack: #2E2E2E;
+  --color-bubonicBrown: #C38900;
+  --color-baliPearl: #F8F8F8;
+  --color-secondaryGray: #efefef;
+  --color-rawSienna: #9B6100;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ==========================================================================
+   Base
+   ========================================================================== */
+body {
+  background: #ffffff;
+  color: var(--color-dynamicBlack);
+  font-family: var(--font-workSans);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ==========================================================================
+   Utilidades de marca (CSS plano para evitar @apply de clases propias en v4)
+   ========================================================================== */
+@layer utilities {
+  .default-transition {
+    transition: all 0.3s ease-in-out;
+  }
+
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Subrayado dorado animado de marca */
+  .link-hover {
+    position: relative;
+    display: inline-block;
+    transition: color 0.3s ease;
+  }
+  .link-hover::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--color-bubonicBrown), var(--color-rawSienna));
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .link-hover:hover::after {
+    width: 100%;
+  }
+  .link-hover:hover {
+    color: var(--color-bubonicBrown);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ==========================================================================
+   Componentes reutilizables del panel
+   (sólo se hace @apply de utilidades nativas de Tailwind)
+   ========================================================================== */
+@layer components {
+  /* ---- Botones --------------------------------------------------------- */
+  .btn-primary,
+  .btn-outline,
+  .btn-gold,
+  .btn-danger {
+    @apply inline-flex w-fit cursor-pointer items-center justify-center gap-2
+           font-vollkorn uppercase tracking-wide transition-all duration-300
+           disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  /* Acción primaria: dorado de marca, texto baliPearl, hover rawSienna */
+  .btn-primary {
+    @apply bg-bubonicBrown px-6 py-2.5 text-baliPearl hover:bg-rawSienna;
+  }
+  /* Secundaria: outline sobre fondo claro, hover invierte color */
+  .btn-outline {
+    @apply border border-dynamicBlack px-5 py-2 text-dynamicBlack
+           hover:bg-dynamicBlack hover:text-baliPearl;
+  }
+  /* Acento dorado (CTA destacada / flotante) */
+  .btn-gold {
+    @apply rounded-md bg-bubonicBrown px-5 py-2.5 text-baliPearl hover:bg-rawSienna;
+  }
+  /* Destructiva (estado de sistema) */
+  .btn-danger {
+    @apply border border-red-200 px-4 py-2 text-red-700 hover:bg-red-50;
+  }
+  /* Tamaño compacto para acciones en tablas (definido después para ganar en orden) */
+  .btn-sm {
+    @apply px-4 py-1.5 text-sm;
+  }
+
+  /* ---- Formularios ----------------------------------------------------- */
+  .label {
+    @apply mb-2 block font-workSans text-sm uppercase tracking-wide text-dynamicBlack/70;
+  }
+  .required {
+    @apply text-red-500;
+  }
+  .input {
+    @apply w-full rounded-md border border-gray-300 bg-white px-3 py-2 font-workSans
+           text-dynamicBlack transition-all duration-300
+           placeholder:text-dynamicBlack/40
+           focus:border-dynamicBlack focus:outline-none;
+  }
+  .input-underline {
+    @apply w-full border-0 border-b-2 border-gray-300 bg-transparent py-2 font-workSans
+           transition-all duration-300 focus:border-dynamicBlack focus:outline-none;
+  }
+
+  /* ---- Superficies ----------------------------------------------------- */
+  .card {
+    @apply rounded-xl border border-dynamicBlack/10 bg-white p-6;
+  }
+  .badge {
+    @apply inline-block rounded-md bg-secondaryGray px-3 py-1 text-xs
+           uppercase tracking-wide text-dynamicBlack;
+  }
+
+  /* ---- Mensajes de estado --------------------------------------------- */
+  .alert-error {
+    @apply rounded-md bg-red-100 p-4 text-red-700;
+  }
+  .alert-success {
+    @apply rounded-md bg-green-100 p-4 text-green-700;
+  }
+}
+
+/* ==========================================================================
+   Contenido enriquecido (.prose) — WYSIWYG fiel a la web (noticias.css)
+   ========================================================================== */
+.prose h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+  font-family: var(--font-vollkorn);
+  color: var(--color-dynamicBlack);
+  margin-bottom: 1.5rem;
+}
+.prose h2 {
+  font-size: 2rem;
+  font-weight: 600;
+  line-height: 1.3;
+  font-family: var(--font-vollkorn);
+  color: var(--color-dynamicBlack);
+  margin: 2rem 0 1rem;
+}
+.prose h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-family: var(--font-vollkorn);
+  color: var(--color-dynamicBlack);
+  margin: 1.5rem 0 0.75rem;
+}
+.prose p {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  font-family: var(--font-workSans);
+  color: var(--color-dynamicBlack);
+  margin-bottom: 1.5rem;
+}
+.prose a {
+  color: var(--color-bubonicBrown);
+  text-decoration: underline;
+}
+.prose a:hover {
+  color: var(--color-rawSienna);
+}
+.prose ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+.prose li {
+  font-family: var(--font-workSans);
+  line-height: 1.7;
+  margin-bottom: 0.25rem;
 }

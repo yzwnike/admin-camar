@@ -15,7 +15,7 @@ export function DeleteProjectButton({ id, projectName, deleteAction }: Props) {
     if (confirm(`¿Seguro que quieres borrar "${projectName}"?`)) {
       const formData = new FormData()
       formData.append("id", id)
-      
+
       startTransition(async () => {
         await deleteAction(formData)
       })
@@ -26,8 +26,8 @@ export function DeleteProjectButton({ id, projectName, deleteAction }: Props) {
     <button
       onClick={handleDelete}
       disabled={isPending}
-      className={`bg-white/90 backdrop-blur p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-white transition-all shadow-sm border border-transparent hover:border-rose-100 ${
-        isPending ? "opacity-50 cursor-not-allowed" : ""
+      className={`rounded-md border border-transparent bg-baliPearl/90 p-2 text-dynamicBlack/50 backdrop-blur default-transition hover:border-red-100 hover:bg-baliPearl hover:text-red-600 ${
+        isPending ? "cursor-not-allowed opacity-50" : "cursor-pointer"
       }`}
       title="Eliminar proyecto"
     >

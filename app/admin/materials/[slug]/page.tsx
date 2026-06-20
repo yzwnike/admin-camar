@@ -26,9 +26,9 @@ async function deleteFromBunny(oldImageUrl: string) {
       method: 'DELETE',
       headers: { 'AccessKey': accessKey! },
     });
-    console.log("🗑️ Imagen antigua eliminada de Bunny con éxito.");
+    console.log(" Imagen antigua eliminada de Bunny con éxito.");
   } catch (err) {
-    console.error("⚠️ No se pudo borrar la imagen antigua:", err);
+    console.error(" No se pudo borrar la imagen antigua:", err);
   }
 }
 
@@ -113,7 +113,7 @@ async function updateMaterialAction(formData: FormData) {
     `;
 
   } catch (error: any) {
-    console.error("❌ ERROR CRÍTICO AL ACTUALIZAR:", error.message);
+    console.error(" ERROR CRÍTICO AL ACTUALIZAR:", error.message);
     throw error;
   }
 
@@ -146,7 +146,7 @@ export default async function EditMaterialPage({ params }: { params: Promise<{ s
     `;
     m = res[0];
   } catch (err) {
-    console.error("❌ Error buscando material:", err);
+    console.error(" Error buscando material:", err);
   }
 
   if (!m) return notFound();
@@ -166,55 +166,55 @@ export default async function EditMaterialPage({ params }: { params: Promise<{ s
   const currentImageUrl = m.image_url || `https://lanzadera-digital.b-cdn.net/camar.es/Materiales/${processedName}-hq.webp`;
 
   return (
-    <form action={updateMaterialAction} className="max-w-6xl mx-auto p-6 pb-20">
+    <form action={updateMaterialAction} className="mx-auto max-w-6xl pb-20">
       <input type="hidden" name="id" value={m.id} />
       <input type="hidden" name="current_image_url" value={m.image_url || ''} />
 
-      <div className="flex justify-between items-end mb-10">
+      <div className="mb-10 flex items-end justify-between">
         <div>
-          <Link href="/admin/materials" className="text-slate-400 text-[10px] font-black uppercase hover:text-slate-900 mb-2 block transition-colors">
-            ← Volver al Catálogo
+          <Link href="/admin/materials" className="link-hover mb-2 block text-[10px] uppercase tracking-widest text-dynamicBlack/50">
+            ← Volver al catálogo
           </Link>
-          <h1 className="text-5xl font-black text-slate-900 uppercase tracking-tighter italic">
+          <h1 className="font-vollkorn text-5xl uppercase tracking-tight text-dynamicBlack">
             Editar: {m.material_name}
           </h1>
         </div>
-        <button type="submit" className="bg-emerald-500 text-white px-10 py-5 rounded-2xl font-black hover:bg-emerald-600 transition shadow-xl uppercase text-[10px] tracking-widest active:scale-95">
-          Guardar Cambios
+        <button type="submit" className="btn-primary">
+          Guardar cambios
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-        <div className="lg:col-span-4 space-y-6">
-          <section className="bg-white rounded-[3rem] p-8 border border-slate-200 shadow-sm space-y-6 text-center">
-            <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest">Fotografía del Material</h3>
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+        <div className="space-y-6 lg:col-span-4">
+          <section className="card space-y-6 text-center">
+            <h3 className="text-xs uppercase tracking-widest text-dynamicBlack/50">Fotografía del material</h3>
             <ImagePicker currentImage={currentImageUrl} />
-            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 mt-4">
-                <p className="text-[8px] font-black uppercase text-slate-400 mb-2">Estado del almacenamiento:</p>
-                <code className="text-[9px] text-indigo-500 break-all font-mono leading-tight">
-                    {m.image_url ? '☁️ Bunny.net Storage' : '📁 Legacy CDN'}
+            <div className="mt-4 rounded-md border border-dynamicBlack/10 bg-baliPearl p-4">
+                <p className="mb-2 text-[8px] uppercase tracking-wide text-dynamicBlack/40">Estado del almacenamiento:</p>
+                <code className="break-all font-mono text-[9px] leading-tight text-bubonicBrown">
+                    {m.image_url ? 'Bunny.net Storage' : 'Legacy CDN'}
                 </code>
             </div>
           </section>
           <MaterialUsesEditor initialUses={m.use || []} />
         </div>
 
-        <div className="lg:col-span-8 space-y-8">
-          <section className="bg-white rounded-[3rem] p-10 border border-slate-200 shadow-sm space-y-8">
-            <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest italic">1. Identidad y Clasificación</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-tighter">Nombre Comercial</label>
-                <input name="material_name" required type="text" defaultValue={m.material_name} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold focus:ring-2 focus:ring-slate-900" />
+        <div className="space-y-8 lg:col-span-8">
+          <section className="card space-y-6">
+            <h3 className="font-vollkorn text-sm uppercase tracking-widest text-dynamicBlack/60">1. Identidad y clasificación</h3>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div>
+                <label className="label">Nombre comercial <span className="required">*</span></label>
+                <input name="material_name" required type="text" defaultValue={m.material_name} className="input" />
               </div>
 
               {/* DROPDOWN DE TIPOS */}
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-tighter">Tipo de Material</label>
-                <select 
-                  name="material_type_es" 
-                  defaultValue={typeData?.es || ""} 
-                  className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold focus:ring-2 focus:ring-slate-900 appearance-none cursor-pointer"
+              <div>
+                <label className="label">Tipo de material</label>
+                <select
+                  name="material_type_es"
+                  defaultValue={typeData?.es || ""}
+                  className="input cursor-pointer appearance-none"
                 >
                   <option value="" disabled>Selecciona un tipo...</option>
                   {MATERIAL_TYPES.map(type => (
@@ -223,27 +223,27 @@ export default async function EditMaterialPage({ params }: { params: Promise<{ s
                 </select>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-tighter">Origen (ES)</label>
-                <input name="location_es" type="text" defaultValue={locationData?.es || ''} className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold focus:ring-2 focus:ring-slate-900" />
+              <div>
+                <label className="label">Origen (ES)</label>
+                <input name="location_es" type="text" defaultValue={locationData?.es || ''} className="input" />
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-indigo-400 ml-2 tracking-tighter">Origin (EN)</label>
-                <input name="location_en" type="text" defaultValue={locationData?.en || ''} className="w-full p-4 bg-indigo-50/30 rounded-2xl border-none font-bold text-indigo-900 focus:ring-2 focus:ring-indigo-500" />
+              <div>
+                <label className="label">Origin (EN)</label>
+                <input name="location_en" type="text" defaultValue={locationData?.en || ''} className="input" />
               </div>
             </div>
           </section>
 
-          <section className="bg-white rounded-[3rem] p-10 border border-slate-200 shadow-sm space-y-6">
-            <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest italic">2. Descripción Bilingüe</h3>
+          <section className="card space-y-6">
+            <h3 className="font-vollkorn text-sm uppercase tracking-widest text-dynamicBlack/60">2. Descripción bilingüe</h3>
             <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-slate-400 ml-2 tracking-tighter">Descripción (Español)</label>
-                <textarea name="description_es" rows={4} defaultValue={descriptionData?.es || ''} className="w-full p-5 bg-slate-50 rounded-[2rem] border-none font-medium focus:ring-2 focus:ring-slate-900 leading-relaxed" />
+              <div>
+                <label className="label">Descripción (Español)</label>
+                <textarea name="description_es" rows={4} defaultValue={descriptionData?.es || ''} className="input leading-relaxed" />
               </div>
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-indigo-400 ml-2 tracking-tighter">Description (English)</label>
-                <textarea name="description_en" rows={4} defaultValue={descriptionData?.en || ''} className="w-full p-5 bg-indigo-50/30 rounded-[2rem] border-none font-medium text-indigo-900 focus:ring-2 focus:ring-indigo-500 leading-relaxed" />
+              <div>
+                <label className="label">Description (English)</label>
+                <textarea name="description_en" rows={4} defaultValue={descriptionData?.en || ''} className="input leading-relaxed" />
               </div>
             </div>
           </section>

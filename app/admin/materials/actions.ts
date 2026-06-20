@@ -22,7 +22,7 @@ async function deleteFromBunny(oldFullUrl: string) {
 
     const storageUrl = `${baseUrl}/${storageZone}${cleanPath}`;
 
-    console.log(`🗑️ Solicitando borrado de archivo antiguo: ${cleanPath}`);
+    console.log(` Solicitando borrado de archivo antiguo: ${cleanPath}`);
 
     const res = await fetch(storageUrl, {
       method: 'DELETE',
@@ -33,13 +33,13 @@ async function deleteFromBunny(oldFullUrl: string) {
     });
 
     if (res.ok) {
-      console.log(`✅ CDN: Archivo anterior eliminado con éxito.`);
+      console.log(` CDN: Archivo anterior eliminado con éxito.`);
     } else {
       const errorMsg = await res.text();
-      console.error(`⚠️ CDN: No se pudo borrar (${res.status}): ${errorMsg}`);
+      console.error(` CDN: No se pudo borrar (${res.status}): ${errorMsg}`);
     }
   } catch (err) {
-    console.error("❌ CDN: Error de red al intentar borrar:", err);
+    console.error(" CDN: Error de red al intentar borrar:", err);
   }
 }
 
@@ -113,7 +113,7 @@ export async function upsertMaterialAction(formData: FormData) {
     return { success: true };
 
   } catch (error: any) {
-    console.error("❌ Error en upsertMaterialAction:", error.message);
+    console.error(" Error en upsertMaterialAction:", error.message);
     return { success: false, error: error.message };
   }
 }

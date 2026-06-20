@@ -14,19 +14,19 @@ export default function MaterialUsesEditor({ initialUses }: { initialUses: strin
   }
 
   return (
-    <section className="bg-white rounded-[2.5rem] p-8 border border-slate-200 shadow-sm">
-      <h3 className="text-[10px] font-black uppercase text-slate-400 mb-4 tracking-widest">Usos Recomendados</h3>
+    <section className="card">
+      <h3 className="mb-4 text-xs uppercase tracking-widest text-dynamicBlack/50">Usos recomendados</h3>
       <div className="flex flex-wrap gap-2">
         {uses.map((u, i) => (
-          <span key={i} className="pl-4 pr-2 py-2 bg-slate-900 text-white rounded-full text-[10px] font-black uppercase flex items-center gap-2">
+          <span key={i} className="flex items-center gap-2 rounded-md bg-dynamicBlack py-2 pl-4 pr-2 text-[10px] uppercase tracking-wide text-baliPearl">
             {u}
-            <button type="button" onClick={() => removeUse(i)} className="hover:text-red-400 text-xs transition">×</button>
+            <button type="button" onClick={() => removeUse(i)} className="text-sm default-transition hover:text-bubonicBrown">×</button>
           </span>
         ))}
-        <button 
+        <button
           type="button"
           onClick={addUse}
-          className="px-4 py-2 border-2 border-dashed border-slate-200 rounded-full text-[10px] font-black text-slate-400 hover:border-slate-900 hover:text-slate-900 transition"
+          className="rounded-md border-2 border-dashed border-dynamicBlack/15 px-4 py-2 text-[10px] uppercase tracking-wide text-dynamicBlack/50 default-transition hover:border-dynamicBlack hover:text-dynamicBlack"
         >
           + Añadir
         </button>

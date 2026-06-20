@@ -8,7 +8,7 @@ import ImageUploader from '../ImageUploader'
 export default function MaterialForm({ initialData }: { initialData?: any }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  
+
   const PULL_ZONE = "https://lanzadera-digital.b-cdn.net/camar.es/Materiales/"
 
   const [formData, setFormData] = useState({
@@ -32,7 +32,7 @@ export default function MaterialForm({ initialData }: { initialData?: any }) {
       data.append('id', formData.id)
       data.append('material_name', formData.material_name)
       data.append('main_image', formData.main_image)
-      
+
       // Enviamos los objetos complejos como JSON strings
       data.append('material_type', JSON.stringify(formData.material_type))
       data.append('location', JSON.stringify(formData.location))
@@ -57,46 +57,46 @@ export default function MaterialForm({ initialData }: { initialData?: any }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-12 pb-20">
-      
+    <form onSubmit={handleSubmit} className="space-y-10 pb-20">
+
       {/* 1. SECCIÓN DE IMAGEN */}
-      <section className="bg-slate-50 p-6 rounded-[2.5rem] border border-slate-200">
-        <h3 className="text-lg font-bold mb-6 flex items-center gap-2 text-slate-800">📸 Textura del Material</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+      <section className="rounded-xl border border-dynamicBlack/10 bg-white p-6">
+        <h3 className="mb-6 font-vollkorn text-xl uppercase tracking-tight text-dynamicBlack">Textura del material</h3>
+        <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-3">
           <div className="md:col-span-1">
-             <ImageUploader 
-                folder="Materiales" 
-                label="Subir Foto Real"
-                onUploadSuccess={(fileName) => setFormData({...formData, main_image: fileName})} 
+             <ImageUploader
+                folder="Materiales"
+                label="Subir foto real"
+                onUploadSuccess={(fileName) => setFormData({...formData, main_image: fileName})}
               />
           </div>
 
-          <div className="md:col-span-2 flex items-center gap-6 bg-white p-4 rounded-3xl border border-slate-100 shadow-sm">
-            <div className="w-32 h-32 rounded-2xl overflow-hidden bg-slate-100 border-2 border-slate-50 shadow-inner flex-shrink-0">
+          <div className="flex items-center gap-6 rounded-md border border-dynamicBlack/10 bg-baliPearl p-4 md:col-span-2">
+            <div className="h-32 w-32 shrink-0 overflow-hidden rounded-md border border-dynamicBlack/10 bg-secondaryGray">
               {formData.main_image ? (
-                <img 
-                  src={`${PULL_ZONE}${formData.main_image}`} 
-                  alt="Preview" 
-                  className="w-full h-full object-cover"
+                <img
+                  src={`${PULL_ZONE}${formData.main_image}`}
+                  alt="Preview"
+                  className="h-full w-full object-cover"
                 />
               ) : (
-                <div className="flex items-center justify-center h-full text-[10px] text-slate-300 font-bold uppercase p-4 text-center">Sin imagen</div>
+                <div className="flex h-full items-center justify-center p-4 text-center text-[10px] uppercase text-dynamicBlack/30">Sin imagen</div>
               )}
             </div>
             <div>
-              <p className="text-xs font-black uppercase text-slate-400 tracking-widest mb-1">Nombre en CDN</p>
-              <p className="text-sm font-mono text-blue-600 break-all">{formData.main_image || 'esperando subida...'}</p>
+              <p className="mb-1 text-xs uppercase tracking-widest text-dynamicBlack/50">Nombre en CDN</p>
+              <p className="break-all font-mono text-sm text-bubonicBrown">{formData.main_image || 'esperando subida...'}</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* 2. DATOS PRINCIPALES */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="space-y-3">
-          <label className="text-xs font-black uppercase text-slate-500 tracking-widest ml-2">Nombre Comercial</label>
-          <input 
-            className="w-full p-5 bg-white border-2 border-slate-100 rounded-[2rem] font-bold text-2xl outline-none focus:border-blue-500 transition-all shadow-sm text-slate-900"
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <div>
+          <label className="label">Nombre comercial <span className="required">*</span></label>
+          <input
+            className="input font-vollkorn text-2xl"
             value={formData.material_name}
             onChange={e => setFormData({...formData, material_name: e.target.value})}
             placeholder="Ej: Cuarcita Monterra"
@@ -105,19 +105,19 @@ export default function MaterialForm({ initialData }: { initialData?: any }) {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-3">
-            <label className="text-xs font-black uppercase text-slate-500 tracking-widest ml-2">Tipo (ES)</label>
-            <input 
-              className="w-full p-5 bg-white border-2 border-slate-100 rounded-[2rem] outline-none focus:border-blue-500 font-bold text-slate-900"
+          <div>
+            <label className="label">Tipo (ES)</label>
+            <input
+              className="input"
               value={formData.material_type.es}
               onChange={e => setFormData({...formData, material_type: {...formData.material_type, es: e.target.value}})}
               placeholder="Mármol"
             />
           </div>
-          <div className="space-y-3">
-            <label className="text-xs font-black uppercase text-slate-500 tracking-widest ml-2">Type (EN)</label>
-            <input 
-              className="w-full p-5 bg-white border-2 border-slate-100 rounded-[2rem] outline-none focus:border-blue-500 font-bold text-slate-900"
+          <div>
+            <label className="label">Type (EN)</label>
+            <input
+              className="input"
               value={formData.material_type.en}
               onChange={e => setFormData({...formData, material_type: {...formData.material_type, en: e.target.value}})}
               placeholder="Marble"
@@ -127,19 +127,19 @@ export default function MaterialForm({ initialData }: { initialData?: any }) {
       </div>
 
       {/* 3. ORIGEN Y USOS */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-         <div className="space-y-3">
-            <label className="text-xs font-black uppercase text-slate-500 tracking-widest ml-2">País de Origen</label>
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+         <div>
+            <label className="label">País de origen</label>
             <div className="flex gap-4">
-              <input className="flex-1 p-5 bg-white border-2 border-slate-100 rounded-[2rem] outline-none focus:border-blue-500 text-slate-900" placeholder="ES" value={formData.location.es} onChange={e => setFormData({...formData, location: {...formData.location, es: e.target.value}})} />
-              <input className="flex-1 p-5 bg-white border-2 border-slate-100 rounded-[2rem] outline-none focus:border-blue-500 text-slate-900" placeholder="EN" value={formData.location.en} onChange={e => setFormData({...formData, location: {...formData.location, en: e.target.value}})} />
+              <input className="input" placeholder="ES" value={formData.location.es} onChange={e => setFormData({...formData, location: {...formData.location, es: e.target.value}})} />
+              <input className="input" placeholder="EN" value={formData.location.en} onChange={e => setFormData({...formData, location: {...formData.location, en: e.target.value}})} />
             </div>
          </div>
 
-         <div className="space-y-3">
-            <label className="text-xs font-black uppercase text-slate-500 tracking-widest ml-2">Usos (separados por coma)</label>
-            <input 
-              className="w-full p-5 bg-slate-900 text-emerald-400 border-none rounded-[2rem] font-mono text-sm outline-none"
+         <div>
+            <label className="label">Usos (separados por coma)</label>
+            <input
+              className="input font-mono text-sm"
               placeholder="hogar, suelos..."
               value={formData.use.join(", ")}
               onChange={e => {
@@ -147,39 +147,41 @@ export default function MaterialForm({ initialData }: { initialData?: any }) {
                 setFormData({...formData, use: val})
               }}
             />
-            <div className="flex gap-2 flex-wrap pl-2">
+            <div className="mt-3 flex flex-wrap gap-2">
               {formData.use.map((tag: string, i: number) => (
-                <span key={i} className="text-[10px] bg-slate-100 text-slate-500 px-2 py-1 rounded-full font-bold uppercase">{tag}</span>
+                <span key={i} className="badge text-[10px]">{tag}</span>
               ))}
             </div>
          </div>
       </div>
 
       {/* 4. DESCRIPCIONES */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        <textarea 
-          rows={5}
-          className="w-full p-6 bg-white border-2 border-slate-100 rounded-[2.5rem] outline-none focus:border-blue-500 text-slate-900"
-          value={formData.description.es}
-          onChange={e => setFormData({...formData, description: {...formData.description, es: e.target.value}})}
-          placeholder="Descripción Castellano"
-        />
-        <textarea 
-          rows={5}
-          className="w-full p-6 bg-white border-2 border-slate-100 rounded-[2.5rem] outline-none focus:border-blue-500 text-slate-900"
-          value={formData.description.en}
-          onChange={e => setFormData({...formData, description: {...formData.description, en: e.target.value}})}
-          placeholder="Description English"
-        />
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+        <div>
+          <label className="label">Descripción (ES)</label>
+          <textarea
+            rows={5}
+            className="input"
+            value={formData.description.es}
+            onChange={e => setFormData({...formData, description: {...formData.description, es: e.target.value}})}
+            placeholder="Descripción en castellano"
+          />
+        </div>
+        <div>
+          <label className="label">Description (EN)</label>
+          <textarea
+            rows={5}
+            className="input"
+            value={formData.description.en}
+            onChange={e => setFormData({...formData, description: {...formData.description, en: e.target.value}})}
+            placeholder="Description in english"
+          />
+        </div>
       </div>
 
-      <div className="pt-10 flex justify-center">
-        <button 
-          type="submit" 
-          disabled={loading}
-          className="w-full max-w-2xl py-6 bg-slate-900 text-white rounded-[2.5rem] font-black text-2xl hover:bg-emerald-600 transition-all shadow-xl disabled:opacity-50"
-        >
-          {loading ? '📦 GUARDANDO...' : (initialData?.id ? '💎 ACTUALIZAR MATERIAL' : '💎 CREAR MATERIAL')}
+      <div className="flex justify-center pt-6">
+        <button type="submit" disabled={loading} className="btn-primary w-full max-w-2xl py-4 text-lg">
+          {loading ? 'Guardando...' : (initialData?.id ? 'Actualizar material' : 'Crear material')}
         </button>
       </div>
     </form>

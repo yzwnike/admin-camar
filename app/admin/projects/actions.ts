@@ -62,7 +62,7 @@ export async function upsertProjectAction(formData: FormData) {
     return { success: true };
 
   } catch (error: any) {
-    console.error("❌ Error:", error.message);
+    console.error(" Error:", error.message);
     return { success: false, error: error.message };
   }
 }

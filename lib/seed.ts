@@ -1861,7 +1861,7 @@ const materialesOriginales = [
 ]
 
 export const ejecutarImportacion = async () => {
-  console.log("🚀 Iniciando importación de materiales por lotes...")
+  console.log(" Iniciando importación de materiales por lotes...")
 
   // 1. Formateamos los datos asegurando que las llaves coincidan con las columnas
   // Usamos (m: any) para evitar errores de TypeScript durante el mapeo
@@ -1892,11 +1892,11 @@ export const ejecutarImportacion = async () => {
       RETURNING *
     `;
 
-    console.log(`✅ ¡Éxito! ${data.length} materiales importados.`);
+    console.log(` ¡Éxito! ${data.length} materiales importados.`);
     return { success: true, count: data.length };
 
   } catch (error: any) {
-    console.error("❌ Error de Base de Datos:", error.message);
+    console.error(" Error de Base de Datos:", error.message);
     return { success: false, error: error.message };
   }
 }

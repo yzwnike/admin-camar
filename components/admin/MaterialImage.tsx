@@ -6,17 +6,17 @@ export default function MaterialImage({ src, alt }: { src: string, alt: string }
 
   if (error) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-slate-100 text-[10px] font-black uppercase text-slate-400 p-10 text-center">
-        Sin Imagen en CDN<br/>{alt}
+      <div className="flex h-full w-full items-center justify-center bg-secondaryGray p-10 text-center text-[10px] uppercase tracking-wide text-dynamicBlack/40">
+        Sin imagen en CDN<br/>{alt}
       </div>
     )
   }
 
   return (
-    <img 
-      src={src} 
-      alt={alt} 
-      className="w-full h-full object-cover"
+    <img
+      src={src}
+      alt={alt}
+      className="h-full w-full object-cover"
       onError={() => setError(true)}
     />
   )

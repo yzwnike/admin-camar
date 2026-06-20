@@ -40,47 +40,45 @@ export default function ImagePicker({ currentImage }: ImagePickerProps) {
 
   return (
     <div className="space-y-4">
-      <label 
-        className={`block aspect-[4/5] rounded-[2.5rem] border-2 border-dashed transition-all relative overflow-hidden cursor-pointer group
-          ${error ? 'border-red-400 bg-red-50' : 'border-slate-200 bg-slate-50 hover:border-emerald-400'}`}
+      <label
+        className={`group relative block aspect-4/5 cursor-pointer overflow-hidden rounded-xl border-2 border-dashed default-transition
+          ${error ? 'border-red-400 bg-red-50' : 'border-dynamicBlack/15 bg-white hover:border-bubonicBrown'}`}
       >
-        <input 
-          type="file" 
-          name="image" 
-          className="hidden" 
-          onChange={handleImageChange} 
-          accept="image/*" 
+        <input
+          type="file"
+          name="image"
+          className="hidden"
+          onChange={handleImageChange}
+          accept="image/*"
         />
-        
+
         {preview ? (
           <>
-            <img 
-              src={preview} 
-              className="absolute inset-0 w-full h-full object-cover" 
-              alt="Preview" 
+            <img
+              src={preview}
+              className="absolute inset-0 h-full w-full object-cover"
+              alt="Preview"
             />
             {/* Overlay para indicar que se puede cambiar */}
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
-              <span className="text-2xl mb-1">🔄</span>
-              <span className="text-[10px] font-black uppercase tracking-widest">Cambiar Imagen</span>
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-dynamicBlack/40 text-baliPearl opacity-0 default-transition group-hover:opacity-100">
+              <span className="text-[10px] uppercase tracking-widest">Cambiar imagen</span>
             </div>
           </>
         ) : (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 group-hover:text-emerald-500 transition-colors">
-            <span className="text-4xl mb-2">📸</span>
-            <span className="text-[10px] font-black uppercase tracking-tighter">Subir Fotografía</span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-dynamicBlack/40 default-transition group-hover:text-bubonicBrown">
+            <span className="text-[10px] uppercase tracking-wide">Subir fotografía</span>
           </div>
         )}
       </label>
 
-      <div className="min-h-[20px]">
+      <div className="min-h-5">
         {error ? (
-          <p className="text-red-500 text-[10px] text-center uppercase font-bold animate-pulse">
+          <p className="animate-pulse text-center text-[10px] font-bold uppercase text-red-500">
             {error}
           </p>
         ) : preview && preview !== currentImage ? (
-          <p className="text-emerald-600 text-[9px] text-center uppercase font-black tracking-widest">
-            ✓ Nueva imagen lista para guardar
+          <p className="text-center text-[9px] uppercase tracking-widest text-green-700">
+            Nueva imagen lista para guardar
           </p>
         ) : null}
       </div>

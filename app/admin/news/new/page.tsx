@@ -3,52 +3,50 @@ import Link from 'next/link'
 
 export default function CreateNewsPage() {
   return (
-    <div className="max-w-6xl mx-auto py-10 px-6">
-      
+    <div className="mx-auto max-w-6xl">
+
       {/* Cabecera del Creador */}
-      <div className="mb-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+      <div className="mb-10 flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
         <div className="space-y-2">
-          <Link 
-            href="/admin/news" 
-            className="group flex items-center gap-2 text-emerald-600 text-[10px] font-black uppercase tracking-widest hover:text-emerald-700 transition-colors"
+          <Link
+            href="/admin/news"
+            className="group flex items-center gap-2 text-[10px] uppercase tracking-widest text-bubonicBrown default-transition hover:text-rawSienna"
           >
-            <span className="text-lg group-hover:-translate-x-1 transition-transform">←</span> 
+            <span className="text-lg default-transition group-hover:-translate-x-1">←</span>
             Volver al listado
           </Link>
-          <h1 className="text-5xl font-black text-slate-900 tracking-tight uppercase leading-none">
-            Nueva Noticia
+          <h1 className="font-vollkorn text-5xl uppercase leading-none tracking-tight text-dynamicBlack">
+            Nueva noticia
           </h1>
-          <p className="text-slate-400 font-medium italic">
-            Configurando una nueva entrada para el blog de <span className="text-slate-600 text-sm not-italic font-bold ml-1">CAMAR ALMERÍA</span>
+          <p className="italic text-dynamicBlack/40">
+            Configurando una nueva entrada para el blog de <span className="ml-1 text-sm font-bold not-italic text-dynamicBlack/70">CAMAR ALMERÍA</span>
           </p>
         </div>
 
         <div className="flex flex-col items-end gap-2">
-          <div className="bg-slate-900 text-white px-5 py-2 rounded-full text-[10px] font-black border border-slate-800 shadow-xl shadow-slate-200 uppercase tracking-widest">
-            Borrador Nuevo
+          <div className="rounded-md bg-dynamicBlack px-5 py-2 text-[10px] uppercase tracking-widest text-baliPearl">
+            Borrador nuevo
           </div>
-          <span className="text-[10px] font-mono text-slate-300 italic">Esperando publicación...</span>
+          <span className="font-mono text-[10px] italic text-dynamicBlack/30">Esperando publicación...</span>
         </div>
       </div>
 
-      {/* 
-          CONTENEDOR DEL FORMULARIO 
+      {/*
+          CONTENEDOR DEL FORMULARIO
           isEditing={false} activa el auto-slug y auto-folder mientras escribes el título.
           El ImageUploader funcionará automáticamente apuntando a la carpeta generada.
       */}
-      <div className="bg-white p-6 md:p-12 rounded-[3.5rem] border border-slate-200 shadow-2xl shadow-slate-200/60 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-full -z-10 opacity-50"></div>
-        
+      <div className="rounded-xl border border-dynamicBlack/10 bg-white p-6 md:p-12">
         {/* Usamos el formulario robusto que ya gestiona la lógica de guardado */}
         <NewsForm isEditing={false} />
       </div>
-      
-      <div className="mt-8 text-center flex flex-col gap-1">
-        <p className="text-slate-400 text-xs font-medium">
+
+      <div className="mt-8 flex flex-col gap-1 text-center">
+        <p className="text-xs text-dynamicBlack/40">
           Al publicar, el sistema generará automáticamente las URLs amigables y organizará los assets en la CDN.
         </p>
-        <p className="text-slate-300 text-[10px] uppercase font-bold tracking-tighter">
-          Conexión segura con Supabase Cloud & Bunny.net
+        <p className="text-[10px] uppercase tracking-wide text-dynamicBlack/30">
+          Conexión segura con Neon & Bunny.net
         </p>
       </div>
     </div>

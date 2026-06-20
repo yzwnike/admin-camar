@@ -33,54 +33,51 @@ export default async function EditNewsPage({ params }: Props) {
   }
 
   return (
-    <div className="max-w-6xl mx-auto py-10 px-6">
+    <div className="mx-auto max-w-6xl">
       {/* Cabecera del Editor */}
-      <div className="mb-10 flex justify-between items-end">
+      <div className="mb-10 flex items-end justify-between">
         <div className="space-y-2">
-          <Link 
-            href="/admin/news" 
-            className="group flex items-center gap-2 text-emerald-600 text-[10px] font-black uppercase tracking-widest hover:text-emerald-700 transition-colors"
+          <Link
+            href="/admin/news"
+            className="group flex items-center gap-2 text-[10px] uppercase tracking-widest text-bubonicBrown default-transition hover:text-rawSienna"
           >
-            <span className="text-lg group-hover:-translate-x-1 transition-transform">←</span> 
+            <span className="text-lg default-transition group-hover:-translate-x-1">←</span>
             Volver al listado
           </Link>
-          <h1 className="text-5xl font-black text-slate-900 tracking-tight uppercase leading-none">
-            Editar Noticia
+          <h1 className="font-vollkorn text-5xl uppercase leading-none tracking-tight text-dynamicBlack">
+            Editar noticia
           </h1>
-          <p className="text-slate-400 font-medium italic">
-            Editando: <span className="text-slate-600">"{noticia.title?.es}"</span>
+          <p className="italic text-dynamicBlack/40">
+            Editando: <span className="text-dynamicBlack/70">&ldquo;{noticia.title?.es}&rdquo;</span>
           </p>
         </div>
 
-        <div className="hidden md:flex flex-col items-end gap-2">
-          <div className="bg-emerald-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black border border-emerald-600 shadow-xl shadow-emerald-200 animate-pulse">
-            SISTEMA CONECTADO
+        <div className="hidden flex-col items-end gap-2 md:flex">
+          <div className="rounded-md bg-dynamicBlack px-4 py-1.5 text-[10px] uppercase tracking-wide text-baliPearl">
+            Sistema conectado
           </div>
-          <span className="text-[10px] font-mono text-slate-300">ID: {noticia.id}</span>
+          <span className="font-mono text-[10px] text-dynamicBlack/30">ID: {noticia.id}</span>
         </div>
       </div>
 
       {/* El Formulario con los datos cargados */}
-      <div className="bg-white p-6 md:p-12 rounded-[3.5rem] border border-slate-200 shadow-2xl shadow-slate-200/60 relative overflow-hidden">
-        {/* Decoración visual de fondo */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rounded-bl-full -z-10 opacity-50"></div>
-        
-        {/* 
-            CORRECCIÓN CLAVE: 
-            Pasamos 'noticia.slug_es' como 'existingFolder'. 
-            Esto asegura que el NewsForm sepa que debe borrar/subir archivos 
+      <div className="rounded-xl border border-dynamicBlack/10 bg-white p-6 md:p-12">
+        {/*
+            CORRECCIÓN CLAVE:
+            Pasamos 'noticia.slug_es' como 'existingFolder'.
+            Esto asegura que el NewsForm sepa que debe borrar/subir archivos
             en la carpeta ya existente en el CDN, ignorando cambios en el título.
         */}
-        <NewsForm 
-          initialData={noticia} 
-          isEditing={true} 
-          existingFolder={noticia.slug_es} 
+        <NewsForm
+          initialData={noticia}
+          isEditing={true}
+          existingFolder={noticia.slug_es}
         />
       </div>
-      
+
       <div className="mt-8 text-center">
-        <p className="text-slate-400 text-xs">
-          Cualquier cambio realizado se sincronizará con la CDN de Bunny.net y la DB de Supabase.
+        <p className="text-xs text-dynamicBlack/40">
+          Cualquier cambio realizado se sincronizará con la CDN de Bunny.net y la base de datos.
         </p>
       </div>
     </div>

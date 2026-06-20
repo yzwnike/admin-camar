@@ -14,10 +14,7 @@ export default function DeleteNewsButton({ slug }: { slug: string }) {
   return (
     <form action={clientAction}>
       <input type="hidden" name="slug" value={slug} />
-      <button 
-        type="submit"
-        className="text-slate-400 hover:text-red-600 hover:bg-red-50 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-      >
+      <button type="submit" className="btn-danger btn-sm">
         Eliminar
       </button>
     </form>

@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
-import { DeleteProjectButton } from '@/components/admin/DeleteProjectButton'
+import ProjectsList, { type ProjectItem } from '@/components/admin/ProjectsList'
 
 /**
  * ACCIÓN PARA ELIMINAR (Adaptada a Neon/SQL)
@@ -20,7 +20,7 @@ async function deleteProjectAction(formData: FormData) {
       WHERE id = ${id}
     `;
   } catch (error) {
-    console.error("❌ Error eliminando proyecto en Neon:", error);
+    console.error(" Error eliminando proyecto en Neon:", error);
     return;
   }
 
@@ -39,7 +39,7 @@ export default async function ProjectsListPage() {
     `;
     proyectos = data;
   } catch (err) {
-    console.error("❌ Error en Neon Proyectos:", err);
+    console.error(" Error en Neon Proyectos:", err);
     proyectos = [];
   }
 
@@ -54,86 +54,48 @@ export default async function ProjectsListPage() {
     }
   };
 
+  // Construimos el modelo de vista (serializable) para el listado con buscador
+  const items: ProjectItem[] = proyectos.map((p: any) => {
+    const titleObj = safeParse(p.project_name || p.title);
+    const locationObj = safeParse(p.project_location);
+    const pageObj = safeParse(p.project_page);
+
+    const titulo = titleObj?.es || (typeof titleObj === 'string' ? titleObj : 'Sin título');
+    const ubicacion = locationObj?.es || (typeof locationObj === 'string' ? locationObj : 'Ubicación no definida');
+    const portada = p.image_url || pageObj?.main_image || p.main_image || p.mainImage || "/placeholder-project.jpg";
+    const filtro = pageObj?.filtro || 'Proyecto';
+
+    const searchText = [titulo, ubicacion, filtro]
+      .join(' ')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase();
+
+    return {
+      id: p.id,
+      titulo,
+      ubicacion,
+      portada,
+      filtro,
+      editHref: `/admin/projects/${p.slug || p.id}`,
+      searchText,
+    };
+  });
+
   return (
-    <div className="space-y-8 p-6">
+    <div className="space-y-8">
       {/* HEADER */}
-      <div className="flex justify-between items-center">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tighter">Proyectos</h1>
-          <p className="text-slate-500 font-medium">Gestiona el portafolio de obras ({proyectos.length})</p>
+          <h1 className="font-vollkorn text-4xl uppercase tracking-tight text-dynamicBlack">Proyectos</h1>
+          <p className="mt-2 text-dynamicBlack/60">Gestiona el portafolio de obras</p>
         </div>
-        <Link href="/admin/projects/new" className="bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-emerald-700 transition shadow-lg">
-          + Nuevo Proyecto
+        <Link href="/admin/projects/new" className="btn-primary">
+          + Nuevo proyecto
         </Link>
       </div>
 
-      {/* LISTADO */}
-      {proyectos.length === 0 ? (
-        <div className="bg-white border-2 border-dashed border-slate-200 rounded-[2.5rem] py-20 text-center">
-          <p className="text-slate-400 font-medium italic">No se han encontrado proyectos en la base de datos.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {proyectos.map((p: any) => {
-            
-            // Parseo de campos que pueden venir de Supabase (JSON) o Neon (TEXT)
-            const titleObj = safeParse(p.project_name || p.title);
-            const locationObj = safeParse(p.project_location);
-            const pageObj = safeParse(p.project_page);
-
-            const titulo = titleObj?.es || (typeof titleObj === 'string' ? titleObj : 'Sin título');
-            const ubicacion = locationObj?.es || (typeof locationObj === 'string' ? locationObj : 'Ubicación no definida');
-
-            // Lógica de imagen (Priorizamos la nueva columna si existiera, luego los objetos antiguos)
-            const portada = p.image_url || pageObj?.main_image || p.main_image || p.mainImage || "/placeholder-project.jpg";
-            const filtro = pageObj?.filtro || 'Proyecto';
-
-            return (
-              <div key={p.id} className="bg-white rounded-[2rem] border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all group relative">
-                
-                {/* BOTÓN ELIMINAR */}
-                <div className="absolute top-4 right-4 z-10">
-                  <DeleteProjectButton 
-                    id={p.id} 
-                    projectName={titulo} 
-                    deleteAction={deleteProjectAction} 
-                  />
-                </div>
-
-                {/* IMAGEN DE PORTADA */}
-                <div className="aspect-video bg-slate-100 relative overflow-hidden">
-                  <img 
-                    src={portada} 
-                    alt={titulo} 
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
-                  />
-                  <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-[10px] font-black uppercase shadow-sm border border-white/20">
-                    {filtro}
-                  </div>
-                </div>
-
-                {/* INFO Y BOTÓN EDITAR */}
-                <div className="p-6">
-                  <h3 className="font-bold text-lg text-slate-800 line-clamp-1 uppercase tracking-tight">
-                    {titulo}
-                  </h3>
-                  <p className="text-slate-400 text-sm mb-6 flex items-center gap-1">
-                    📍 {ubicacion}
-                  </p>
-                  <div className="flex gap-2">
-                    <Link 
-                      href={`/admin/projects/${p.slug || p.id}`} 
-                      className="flex-1 text-center bg-slate-900 text-white py-4 rounded-xl text-[10px] font-black hover:bg-black transition-all tracking-widest"
-                    >
-                      EDITAR PROYECTO
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
+      <ProjectsList items={items} deleteAction={deleteProjectAction} />
     </div>
   )
 }

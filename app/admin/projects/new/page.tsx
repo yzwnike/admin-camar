@@ -124,71 +124,73 @@ export default function NewProjectPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 pb-20">
+    <div className="mx-auto max-w-6xl pb-20">
       <form action={createProjectAction}>
-        <div className="flex justify-between items-end mb-10">
+        <div className="mb-10 flex items-end justify-between">
           <div>
-            <Link href="/admin/projects" className="text-slate-400 text-xs font-black uppercase mb-2 block hover:text-slate-900 transition">
+            <Link href="/admin/projects" className="link-hover mb-2 block text-[10px] uppercase tracking-widest text-dynamicBlack/50">
               ← Cancelar
             </Link>
-            <h1 className="text-5xl font-black text-slate-900 uppercase tracking-tighter leading-none italic">
-              Nuevo Proyecto
+            <h1 className="font-vollkorn text-5xl uppercase leading-none tracking-tight text-dynamicBlack">
+              Nuevo proyecto
             </h1>
           </div>
-          <button type="submit" className="bg-emerald-500 text-white px-10 py-5 rounded-2xl font-black hover:bg-emerald-600 transition shadow-xl uppercase text-[10px] tracking-widest active:scale-95">
-            Publicar Proyecto
+          <button type="submit" className="btn-primary">
+            Publicar proyecto
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
-          <div className="lg:col-span-8 space-y-10">
-            <section className="bg-slate-900 rounded-[3rem] p-10 text-white shadow-xl">
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 mb-8 flex items-center gap-2 italic">
-                <span className="w-2 h-2 bg-emerald-500 rounded-full"></span> Identidad Principal
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-12">
+          <div className="space-y-10 lg:col-span-8">
+            <section className="rounded-xl border border-secondaryBlack bg-dynamicBlack p-10 text-baliPearl">
+              <h3 className="mb-8 flex items-center gap-2 font-vollkorn text-sm uppercase tracking-widest text-baliPearl/60">
+                <span className="h-2 w-2 rounded-full bg-bubonicBrown"></span> Identidad principal
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase text-slate-500 ml-2">Nombre Comercial</label>
-                  <input required name="project_name_es" type="text" placeholder="Ej: Villa Oasis" className="w-full p-4 bg-slate-800 rounded-2xl border-none font-bold text-white focus:ring-2 focus:ring-emerald-500 outline-none" />
-                  <input name="project_name_en" type="text" placeholder="Ej: Oasis Villa" className="w-full p-4 bg-slate-800 rounded-2xl border-none font-bold text-emerald-400 focus:ring-2 focus:ring-emerald-500 outline-none" />
+              <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
+                <div className="space-y-3">
+                  <label className="block text-[10px] uppercase tracking-wide text-baliPearl/50">Nombre comercial</label>
+                  <input required name="project_name_es" type="text" placeholder="Ej: Villa Oasis" className="w-full rounded-md border border-secondaryBlack bg-secondaryBlack/50 p-3 text-baliPearl outline-none default-transition placeholder:text-baliPearl/30 focus:border-bubonicBrown" />
+                  <input name="project_name_en" type="text" placeholder="Ej: Oasis Villa" className="w-full rounded-md border border-secondaryBlack bg-secondaryBlack/50 p-3 text-baliPearl outline-none default-transition placeholder:text-baliPearl/30 focus:border-bubonicBrown" />
                 </div>
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase text-slate-500 ml-2">Ubicación</label>
-                  <input name="project_location_es" type="text" placeholder="Marbella, España" className="w-full p-4 bg-slate-800 rounded-2xl border-none font-bold text-white focus:ring-2 focus:ring-emerald-500 outline-none" />
-                  <input name="project_location_en" type="text" placeholder="Marbella, Spain" className="w-full p-4 bg-slate-800 rounded-2xl border-none font-bold text-emerald-400 focus:ring-2 focus:ring-emerald-500 outline-none" />
+                <div className="space-y-3">
+                  <label className="block text-[10px] uppercase tracking-wide text-baliPearl/50">Ubicación</label>
+                  <input name="project_location_es" type="text" placeholder="Marbella, España" className="w-full rounded-md border border-secondaryBlack bg-secondaryBlack/50 p-3 text-baliPearl outline-none default-transition placeholder:text-baliPearl/30 focus:border-bubonicBrown" />
+                  <input name="project_location_en" type="text" placeholder="Marbella, Spain" className="w-full rounded-md border border-secondaryBlack bg-secondaryBlack/50 p-3 text-baliPearl outline-none default-transition placeholder:text-baliPearl/30 focus:border-bubonicBrown" />
                 </div>
               </div>
             </section>
 
-            <ProjectGalleryEditor 
-              initialGallery={[]} 
+            <ProjectGalleryEditor
+              initialGallery={[]}
+              initialMain=""
+              initialBg=""
               bunnyConfig={bunnyConfig}
             />
 
-            <section className="bg-white rounded-[3rem] p-10 border border-slate-200 shadow-sm space-y-8">
-              <h3 className="text-xs font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 italic">
-                <span className="w-2 h-2 bg-indigo-500 rounded-full"></span> Títulos y Detalles
+            <section className="card space-y-6">
+              <h3 className="flex items-center gap-2 font-vollkorn text-sm uppercase tracking-widest text-dynamicBlack/60">
+                <span className="h-2 w-2 rounded-full bg-bubonicBrown"></span> Títulos y detalles
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Título de Página</label>
-                  <input name="title_es" type="text" placeholder="Título largo ES" className="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold mb-2 focus:ring-2 focus:ring-slate-200 outline-none" />
-                  <input name="title_en" type="text" placeholder="Long Title EN" className="w-full p-4 bg-indigo-50/50 rounded-2xl border-none font-bold text-indigo-900 focus:ring-2 focus:ring-indigo-100 outline-none" />
+              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                <div className="space-y-3">
+                  <label className="label">Título de página</label>
+                  <input name="title_es" type="text" placeholder="Título largo ES" className="input" />
+                  <input name="title_en" type="text" placeholder="Long title EN" className="input" />
                 </div>
-                <div className="space-y-4">
-                  <label className="text-[10px] font-black uppercase text-slate-400 ml-2">Sobre el proyecto</label>
-                  <textarea name="sobreElProyecto_es" rows={4} placeholder="Descripción..." className="w-full p-4 bg-slate-50 rounded-2xl border-none font-medium text-sm focus:ring-2 focus:ring-slate-200 outline-none resize-none" />
-                  <textarea name="sobreElProyecto_en" rows={4} placeholder="Description..." className="w-full p-4 bg-indigo-50/50 rounded-2xl border-none font-medium text-sm text-indigo-900 focus:ring-2 focus:ring-indigo-100 outline-none resize-none" />
+                <div className="space-y-3">
+                  <label className="label">Sobre el proyecto</label>
+                  <textarea name="sobreElProyecto_es" rows={4} placeholder="Descripción..." className="input resize-none" />
+                  <textarea name="sobreElProyecto_en" rows={4} placeholder="Description..." className="input resize-none" />
                 </div>
               </div>
             </section>
           </div>
 
-          <div className="lg:col-span-4 space-y-8">
+          <div className="space-y-8 lg:col-span-4">
             <ProjectMaterialsEditor initialMaterials={[]} />
-            <section className="bg-slate-50 rounded-[2.5rem] p-8 border border-slate-200 shadow-inner">
-              <h3 className="text-[10px] font-black uppercase text-slate-400 mb-6 tracking-widest">Categoría</h3>
-              <select name="type" className="w-full bg-white border border-slate-200 rounded-xl p-4 font-bold text-sm shadow-sm outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer">
+            <section className="card">
+              <h3 className="mb-6 text-xs uppercase tracking-widest text-dynamicBlack/50">Categoría</h3>
+              <select name="type" className="input cursor-pointer">
                 {PROJECT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </section>

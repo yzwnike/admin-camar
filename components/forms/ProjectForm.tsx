@@ -7,11 +7,11 @@ import ImageUploader from '../ImageUploader'
 export default function ProjectForm({ initialData }: { initialData?: any }) {
   const router = useRouter()
   const [loading, setLoading] = useState(false)
-  
+
   const PULL_ZONE = "https://lanzadera-digital.b-cdn.net/camar.es/Proyectos/"
 
   /**
-   * Función de parseo ultra-segura. 
+   * Función de parseo ultra-segura.
    */
   const parseSafe = (data: any, fallback: any) => {
     if (!data) return fallback;
@@ -34,7 +34,7 @@ export default function ProjectForm({ initialData }: { initialData?: any }) {
     slug_en: initialData?.slug_en || '',
     projectName: parseSafe(initialData?.projectName, { es: '', en: '' }),
     projectLocation: parseSafe(initialData?.projectLocation, { es: '', en: '' }),
-    type: parseSafe(initialData?.type, []), 
+    type: parseSafe(initialData?.type, []),
     mainImage: initialData?.mainImage || '',
     bgImage: initialData?.bgImage || '',
     projectPage: parseSafe(initialData?.projectPage, {
@@ -92,14 +92,14 @@ export default function ProjectForm({ initialData }: { initialData?: any }) {
       data.append('slug_en', formData.slug_en)
       data.append('mainImage', formData.mainImage)
       data.append('bgImage', formData.bgImage)
-      
+
       data.append('projectName', JSON.stringify(formData.projectName))
       data.append('projectLocation', JSON.stringify(formData.projectLocation))
       data.append('type', JSON.stringify(formData.type))
       data.append('projectPage', JSON.stringify(formData.projectPage))
 
       const result = await upsertProjectAction(data)
-      
+
       if (result?.success) {
         router.refresh();
         alert("¡Cambios guardados con éxito!");
@@ -115,24 +115,27 @@ export default function ProjectForm({ initialData }: { initialData?: any }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-12 pb-32 text-slate-900">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+    <form onSubmit={handleSubmit} className="space-y-10 pb-32 text-dynamicBlack">
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         {/* SECCIÓN CASTELLANO */}
-        <div className="bg-emerald-50/30 p-8 rounded-[3rem] space-y-6 border border-emerald-100">
-          <h3 className="text-emerald-700 font-black uppercase tracking-tighter">🇪🇸 Castellano</h3>
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-emerald-600 uppercase ml-2">Nombre del Proyecto</label>
-            <input 
-              className="w-full text-3xl font-black bg-white p-4 rounded-2xl border-b-4 border-emerald-200 outline-none focus:border-emerald-500 shadow-sm"
+        <div className="card space-y-6">
+          <div className="flex items-center gap-3">
+            <span className="h-3 w-3 rounded-full bg-bubonicBrown"></span>
+            <span className="font-vollkorn text-sm uppercase tracking-widest text-dynamicBlack/60">Castellano</span>
+          </div>
+          <div>
+            <label className="label">Nombre del proyecto <span className="required">*</span></label>
+            <input
+              className="input font-vollkorn text-2xl"
               value={formData.projectName?.es || ''}
               onChange={e => setFormData({...formData, projectName: {...formData.projectName, es: e.target.value}})}
               required
             />
           </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-emerald-600 uppercase ml-2">Ubicación</label>
-            <input 
-              className="w-full text-xl font-bold bg-white p-4 rounded-2xl border-b-4 border-emerald-100 outline-none focus:border-emerald-500 shadow-sm"
+          <div>
+            <label className="label">Ubicación</label>
+            <input
+              className="input"
               value={formData.projectLocation?.es || ''}
               onChange={e => setFormData({...formData, projectLocation: {...formData.projectLocation, es: e.target.value}})}
             />
@@ -140,21 +143,24 @@ export default function ProjectForm({ initialData }: { initialData?: any }) {
         </div>
 
         {/* SECCIÓN INGLÉS */}
-        <div className="bg-blue-50/30 p-8 rounded-[3rem] space-y-6 border border-blue-100">
-          <h3 className="text-blue-700 font-black uppercase tracking-tighter">🇬🇧 English</h3>
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-blue-600 uppercase ml-2">Project Name</label>
-            <input 
-              className="w-full text-3xl font-black bg-white p-4 rounded-2xl border-b-4 border-blue-200 outline-none focus:border-blue-500 shadow-sm"
+        <div className="card space-y-6 bg-baliPearl">
+          <div className="flex items-center gap-3">
+            <span className="h-3 w-3 rounded-full bg-dynamicBlack"></span>
+            <span className="font-vollkorn text-sm uppercase tracking-widest text-dynamicBlack/60">English</span>
+          </div>
+          <div>
+            <label className="label">Project name <span className="required">*</span></label>
+            <input
+              className="input font-vollkorn text-2xl"
               value={formData.projectName?.en || ''}
               onChange={e => setFormData({...formData, projectName: {...formData.projectName, en: e.target.value}})}
               required
             />
           </div>
-          <div className="space-y-2">
-            <label className="text-[10px] font-bold text-blue-600 uppercase ml-2">Location</label>
-            <input 
-              className="w-full text-xl font-bold bg-white p-4 rounded-2xl border-b-4 border-blue-100 outline-none focus:border-blue-500 shadow-sm"
+          <div>
+            <label className="label">Location</label>
+            <input
+              className="input"
               value={formData.projectLocation?.en || ''}
               onChange={e => setFormData({...formData, projectLocation: {...formData.projectLocation, en: e.target.value}})}
             />
@@ -162,48 +168,44 @@ export default function ProjectForm({ initialData }: { initialData?: any }) {
         </div>
       </div>
 
-      <section className="bg-white p-8 rounded-[3rem] border border-slate-200">
-        <h3 className="text-lg font-black mb-6 uppercase tracking-tighter text-slate-400">📸 Galería de Imágenes</h3>
-        <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-4">
+      <section className="card">
+        <h3 className="mb-6 font-vollkorn text-xl uppercase tracking-tight text-dynamicBlack">Galería de imágenes</h3>
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 md:grid-cols-8">
           {formData.projectPage.gallery.map((img: any, i: number) => (
-            <div key={i} className="group relative aspect-square rounded-2xl overflow-hidden border border-slate-100 shadow-inner">
-              <img src={`${PULL_ZONE}${img.src}`} className="w-full h-full object-cover" alt={`Galería ${i}`} />
-              <button 
-                type="button" 
-                onClick={() => removeGalleryImage(i, img.src)} 
-                className="absolute inset-0 bg-red-600/80 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center text-[10px] font-black transition-opacity"
+            <div key={i} className="group relative aspect-square overflow-hidden rounded-md border border-dynamicBlack/10">
+              <img src={`${PULL_ZONE}${img.src}`} className="h-full w-full object-cover" alt={`Galería ${i}`} />
+              <button
+                type="button"
+                onClick={() => removeGalleryImage(i, img.src)}
+                className="absolute inset-0 flex items-center justify-center bg-red-600/80 text-[10px] font-bold uppercase tracking-wide text-baliPearl opacity-0 default-transition group-hover:opacity-100"
               >
-                QUITAR
+                Quitar
               </button>
             </div>
           ))}
           <div className="aspect-square">
-            <ImageUploader 
-              folder="Proyectos" 
+            <ImageUploader
+              folder="Proyectos"
               onUploadSuccess={(name) => setFormData({
-                ...formData, 
+                ...formData,
                 projectPage: {
-                  ...formData.projectPage, 
+                  ...formData.projectPage,
                   gallery: [...formData.projectPage.gallery, {type:'image', src:name}]
                 }
-              })} 
+              })}
             />
           </div>
         </div>
       </section>
 
-      <div className="fixed bottom-10 left-1/2 -translate-x-1/2 w-full max-w-md px-6 z-50">
-        <button 
-          type="submit" 
-          disabled={loading}
-          className="w-full py-6 bg-emerald-500 text-white rounded-full font-black text-2xl shadow-2xl hover:bg-emerald-600 hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:hover:scale-100"
-        >
+      <div className="fixed bottom-10 left-1/2 z-50 w-full max-w-md -translate-x-1/2 px-6">
+        <button type="submit" disabled={loading} className="btn-gold w-full py-4 text-lg shadow-2xl">
           {loading ? (
             <span className="flex items-center justify-center gap-2">
-              <span className="w-5 h-5 border-4 border-white border-t-transparent rounded-full animate-spin"></span>
-              GUARDANDO...
+              <span className="h-5 w-5 animate-spin rounded-full border-4 border-baliPearl border-t-transparent"></span>
+              Guardando...
             </span>
-          ) : 'GUARDAR CAMBIOS'}
+          ) : 'Guardar cambios'}
         </button>
       </div>
     </form>

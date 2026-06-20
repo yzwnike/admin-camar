@@ -31,12 +31,12 @@ async function deleteFileFromBunny(folderPath: string, fileName: string) {
     });
 
     if (response.ok) {
-      console.log(`✅ Eliminado de CDN: ${fileName}`);
+      console.log(` Eliminado de CDN: ${fileName}`);
     } else {
-      console.error(`❌ Fallo borrado CDN (${response.status}): ${fileName}`);
+      console.error(` Fallo borrado CDN (${response.status}): ${fileName}`);
     }
   } catch (error) {
-    console.error("⚠️ Error conexión Bunny API:", error);
+    console.error(" Error conexión Bunny API:", error);
   }
 }
 
@@ -101,7 +101,7 @@ export async function upsertNewsAction(formData: FormData) {
     revalidatePath('/admin/news');
     return { success: true };
   } catch (error: any) {
-    console.error("❌ Error DB Noticias:", error.message);
+    console.error(" Error DB Noticias:", error.message);
     return { success: false, error: error.message };
   }
 }

@@ -3790,7 +3790,7 @@ const proyectosOriginales = [
 ]
 
 export const importarProyectos = async () => {
-  console.log("🚀 Iniciando importación de proyectos...");
+  console.log(" Iniciando importación de proyectos...");
 
   // Usamos (p: any) para que TypeScript no se queje de si existe slug o slug_es
   const datosFormateados = proyectosOriginales.map((p: any) => ({
@@ -3821,11 +3821,11 @@ export const importarProyectos = async () => {
       RETURNING *
     `;
 
-    console.log(`✅ ¡Éxito! ${data.length} proyectos importados.`);
+    console.log(` ¡Éxito! ${data.length} proyectos importados.`);
     return { success: true, count: data.length };
 
   } catch (error: any) {
-    console.error("❌ Error proyectos:", error.message);
+    console.error(" Error proyectos:", error.message);
     return { success: false, error: error.message };
   }
 }
