@@ -1,8 +1,11 @@
 import { supabase } from '@/lib/supabase'
 import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import Link from 'next/link'
-import ImagePicker from '@/components/admin/ImagePicker'
+import { recordEdit } from '@/lib/app-meta'
+import { setFlash } from '@/lib/flash'
+import { triggerDeploy } from '@/lib/deploy-hook'
+import { MATERIAL_TYPE_ES, getMaterialTypeEn } from '@/lib/material-types'
+import CreateMaterialForm from '@/components/forms/CreateMaterialForm'
 
 /**
  * ACCIÓN DE SERVIDOR: Crea el material y sube la imagen a Bunny.net
@@ -14,7 +17,12 @@ async function createMaterialAction(formData: FormData) {
     const name = formData.get('material_name') as string
     const file = formData.get('image') as File
     const selectedType = formData.get('type_es') as string // Obtenemos el valor del dropdown
-    
+
+    // La imagen es obligatoria al crear un material
+    if (!file || file.size === 0) {
+      throw new Error("La imagen del material es obligatoria");
+    }
+
     let imageUrl = ''
 
     // 1. SUBIDA A BUNNY.NET (Storage API)
@@ -58,31 +66,35 @@ async function createMaterialAction(formData: FormData) {
       en: formData.get('description_en') || ""
     });
 
-    // Guardamos el tipo seleccionado del dropdown
+    // Guardamos el tipo capitalizado (ES) + su traducción (EN) desde el mapa interno
     const materialType = JSON.stringify({
-      es: selectedType || "OTRO",
-      en: selectedType || "OTHER" // Puedes añadir un mapeo si necesitas traducción exacta
+      es: selectedType,
+      en: getMaterialTypeEn(selectedType)
     });
+
+    // Usos seleccionados (columna text[]) — siempre lowercase
+    const useArray = (formData.get('use') ? JSON.parse(formData.get('use') as string) : [])
+      .map((u: string) => String(u).toLowerCase());
 
     // 3. INSERCIÓN EN NEON (SQL)
     await supabase`
       INSERT INTO materiales (
-        id, 
-        material_name, 
-        location, 
-        description, 
-        material_type, 
-        image_url, 
-        use, 
+        id,
+        material_name,
+        location,
+        description,
+        material_type,
+        image_url,
+        use,
         created_at
       ) VALUES (
-        ${crypto.randomUUID()}, 
-        ${name}, 
-        ${location}, 
-        ${description}, 
-        ${materialType}, 
-        ${imageUrl}, 
-        ${[]}, 
+        ${crypto.randomUUID()},
+        ${name},
+        ${location},
+        ${description},
+        ${materialType},
+        ${imageUrl},
+        ${useArray},
         NOW()
       )
     `;
@@ -94,99 +106,24 @@ async function createMaterialAction(formData: FormData) {
     throw new Error(error.message); 
   }
 
+  await recordEdit();
+  await triggerDeploy();
+  await setFlash('material-created');
   revalidatePath('/admin/materials');
   revalidatePath('/');
   redirect('/admin/materials');
 }
 
-export default function NewMaterialPage() {
-  
-  // Opciones basadas en la imagen de referencia
-  const MATERIAL_TYPES = [
-    "MÁRMOL", "GRANITO", "CUARCITA", "ÓNIX", "TRAVERTINO", 
-    "CALIZA", "MINERAL", "ALABASTRO", "ARENISCA", "PÓRFIDO"
-  ];
+export default async function NewMaterialPage() {
 
-  return (
-    <form action={createMaterialAction} className="mx-auto max-w-6xl pb-20">
+  // Nombres existentes para validar duplicados/parecidos en tiempo real
+  let existingNames: string[] = [];
+  try {
+    const rows = await supabase`SELECT material_name FROM materiales WHERE material_name IS NOT NULL`;
+    existingNames = rows.map((r: any) => r.material_name).filter(Boolean);
+  } catch (err) {
+    console.error("No se pudieron cargar los nombres de materiales:", err);
+  }
 
-      {/* HEADER */}
-      <div className="mb-10 flex items-end justify-between">
-        <div>
-          <Link href="/admin/materials" className="link-hover mb-2 block text-[10px] uppercase tracking-widest text-dynamicBlack/50">
-            ← Volver al catálogo
-          </Link>
-          <h1 className="font-vollkorn text-5xl uppercase tracking-tight text-dynamicBlack">
-            Nuevo material
-          </h1>
-        </div>
-        <button type="submit" className="btn-primary">
-          Crear material
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
-
-        {/* COLUMNA IZQUIERDA: IMAGEN */}
-        <div className="lg:col-span-4">
-          <section className="card space-y-6 text-center">
-            <h3 className="text-xs uppercase tracking-widest text-dynamicBlack/50">Imagen del material</h3>
-            <ImagePicker />
-            <p className="text-[9px] italic text-dynamicBlack/40">
-              Formatos: WebP / JPG (Máx 1MB).
-            </p>
-          </section>
-        </div>
-
-        {/* COLUMNA DERECHA: DATOS */}
-        <div className="space-y-8 lg:col-span-8">
-
-          <section className="card space-y-6">
-            <h3 className="font-vollkorn text-sm uppercase tracking-widest text-dynamicBlack/60">1. Identidad y clasificación</h3>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <div>
-                <label className="label">Nombre comercial <span className="required">*</span></label>
-                <input name="material_name" required type="text" placeholder="Ej: Blanco Macael" className="input" />
-              </div>
-
-              {/* DROPDOWN DE TIPOS INTEGRADO */}
-              <div>
-                <label className="label">Tipo de material <span className="required">*</span></label>
-                <select name="type_es" required defaultValue="" className="input cursor-pointer appearance-none">
-                  <option value="" disabled>Selecciona un tipo...</option>
-                  {MATERIAL_TYPES.map(type => (
-                    <option key={type} value={type}>{type}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="label">Origen (ES)</label>
-                <input name="location_es" type="text" placeholder="Almería, España" className="input" />
-              </div>
-              <div>
-                <label className="label">Origin (EN)</label>
-                <input name="location_en" type="text" placeholder="Spain" className="input" />
-              </div>
-            </div>
-          </section>
-
-          <section className="card space-y-6">
-            <h3 className="font-vollkorn text-sm uppercase tracking-widest text-dynamicBlack/60">2. Descripción bilingüe</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="label">Descripción (ES)</label>
-                <textarea name="description_es" rows={3} className="input leading-relaxed" />
-              </div>
-              <div>
-                <label className="label">Description (EN)</label>
-                <textarea name="description_en" rows={3} className="input leading-relaxed" />
-              </div>
-            </div>
-          </section>
-        </div>
-
-      </div>
-    </form>
-  )
+  return <CreateMaterialForm action={createMaterialAction} materialTypes={MATERIAL_TYPE_ES} existingNames={existingNames} />
 }

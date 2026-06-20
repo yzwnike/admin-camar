@@ -3,6 +3,8 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import { randomUUID } from 'crypto'
+import { recordEdit } from '@/lib/app-meta'
+import { triggerDeploy } from '@/lib/deploy-hook'
 import ProjectMaterialsEditor from '@/components/admin/ProjectMaterialsEditor'
 import ProjectGalleryEditor from '@/components/admin/ProjectGalleryEditor'
 
@@ -109,6 +111,8 @@ async function createProjectAction(formData: FormData) {
     return;
   }
 
+  await recordEdit();
+  await triggerDeploy();
   revalidatePath('/admin/projects');
   redirect(`/admin/projects/${slug}`);
 }
@@ -148,7 +152,7 @@ export default function NewProjectPage() {
               </h3>
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                 <div className="space-y-3">
-                  <label className="block text-[10px] uppercase tracking-wide text-baliPearl/50">Nombre comercial</label>
+                  <label className="block text-[10px] uppercase tracking-wide text-baliPearl/50">Nombre </label>
                   <input required name="project_name_es" type="text" placeholder="Ej: Villa Oasis" className="w-full rounded-md border border-secondaryBlack bg-secondaryBlack/50 p-3 text-baliPearl outline-none default-transition placeholder:text-baliPearl/30 focus:border-bubonicBrown" />
                   <input name="project_name_en" type="text" placeholder="Ej: Oasis Villa" className="w-full rounded-md border border-secondaryBlack bg-secondaryBlack/50 p-3 text-baliPearl outline-none default-transition placeholder:text-baliPearl/30 focus:border-bubonicBrown" />
                 </div>

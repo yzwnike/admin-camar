@@ -1,10 +1,13 @@
 import { supabase } from '@/lib/supabase'
 import { notFound, redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import Link from 'next/link'
 import ProjectMaterialsEditor from '@/components/admin/ProjectMaterialsEditor'
 import ProjectGalleryEditor from '@/components/admin/ProjectGalleryEditor'
 import { DeleteProjectButton } from '@/components/admin/DeleteProjectButton'
+import AdminLink from '@/components/admin/AdminLink'
+import UnsavedChangesGuard from '@/components/admin/UnsavedChangesGuard'
+import { recordEdit } from '@/lib/app-meta'
+import { triggerDeploy } from '@/lib/deploy-hook'
 
 /**
  * SERVER ACTION: ACTUALIZAR PROYECTO
@@ -101,10 +104,12 @@ async function updateProjectAction(formData: FormData) {
     return;
   }
 
+  await recordEdit();
+  await triggerDeploy();
   revalidatePath('/admin/projects');
   revalidatePath(`/admin/projects/${fixedSlug}`);
   revalidatePath(`/proyectos/${fixedSlug}`);
-  
+
   redirect(`/admin/projects/${fixedSlug}?updated=${Date.now()}`);
 }
 
@@ -116,6 +121,7 @@ async function deleteProjectAction(formData: FormData) {
   const id = formData.get('id')?.toString();
   if (!id) return;
   await supabase`DELETE FROM proyectos WHERE id = ${id}`;
+  await triggerDeploy();
   revalidatePath('/admin/projects');
   redirect('/admin/projects');
 }
@@ -171,13 +177,14 @@ export default async function EditProjectPage({ params }: { params: Promise<{ sl
   return (
     <div className="mx-auto max-w-6xl pb-20">
       <form action={updateProjectAction}>
+        <UnsavedChangesGuard />
         <input type="hidden" name="id" value={p.id} />
 
         <div className="mb-10 flex items-end justify-between">
           <div className="space-y-2">
-            <Link href="/admin/projects" className="group flex items-center gap-2 text-[10px] uppercase tracking-widest text-dynamicBlack/50 default-transition hover:text-dynamicBlack">
+            <AdminLink href="/admin/projects" className="group flex items-center gap-2 text-[10px] uppercase tracking-widest text-dynamicBlack/50 default-transition hover:text-dynamicBlack">
               <span className="text-lg default-transition group-hover:-translate-x-1">←</span> Volver al listado
-            </Link>
+            </AdminLink>
             <h1 className="font-vollkorn text-5xl uppercase leading-none tracking-tight text-dynamicBlack">
               {nameData.es || "Sin nombre"}
             </h1>
@@ -197,7 +204,7 @@ export default async function EditProjectPage({ params }: { params: Promise<{ sl
               </h3>
               <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
                 <div className="space-y-3">
-                  <label className="block text-[10px] uppercase tracking-wide text-baliPearl/50">Nombre comercial</label>
+                  <label className="block text-[10px] uppercase tracking-wide text-baliPearl/50">Nombre</label>
                   <input name="project_name_es" type="text" defaultValue={nameData.es} className="w-full rounded-md border border-secondaryBlack bg-secondaryBlack/50 p-3 text-baliPearl outline-none default-transition focus:border-bubonicBrown" />
                   <input name="project_name_en" type="text" defaultValue={nameData.en} className="w-full rounded-md border border-secondaryBlack bg-secondaryBlack/50 p-3 text-baliPearl outline-none default-transition focus:border-bubonicBrown" />
                 </div>

@@ -94,7 +94,7 @@ export default function MaterialForm({ initialData }: { initialData?: any }) {
       {/* 2. DATOS PRINCIPALES */}
       <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
         <div>
-          <label className="label">Nombre comercial <span className="required">*</span></label>
+          <label className="label">Nombre <span className="required">*</span></label>
           <input
             className="input font-vollkorn text-2xl"
             value={formData.material_name}

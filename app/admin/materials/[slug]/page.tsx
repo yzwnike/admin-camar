@@ -1,9 +1,14 @@
 import { supabase } from '@/lib/supabase'
 import { notFound, redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
-import Link from 'next/link'
 import MaterialUsesEditor from '@/components/admin/MaterialUsesEditor'
 import ImagePicker from '@/components/admin/ImagePicker'
+import AdminLink from '@/components/admin/AdminLink'
+import UnsavedChangesGuard from '@/components/admin/UnsavedChangesGuard'
+import { recordEdit } from '@/lib/app-meta'
+import { setFlash } from '@/lib/flash'
+import { triggerDeploy } from '@/lib/deploy-hook'
+import { MATERIAL_TYPES, getMaterialTypeEn, resolveMaterialTypeEs } from '@/lib/material-types'
 
 /**
  * 1. FUNCIÓN AUXILIAR PARA BORRAR EN BUNNY.NET
@@ -49,7 +54,7 @@ async function updateMaterialAction(formData: FormData) {
 
   try {
     // A. SUBIDA A BUNNY SI HAY ARCHIVO NUEVO
-    if (file && file.size > 0 && file.size <= 1048576) {
+    if (file && file.size > 0 && file.size <= 500 * 1024) {
       
       // Intentamos borrar la imagen anterior antes de poner la nueva
       if (oldImageUrl) await deleteFromBunny(oldImageUrl);
@@ -83,8 +88,8 @@ async function updateMaterialAction(formData: FormData) {
     // B. PREPARACIÓN DE DATOS (JSON)
     // Guardamos el tipo seleccionado en el objeto JSON de material_type
     const material_type = JSON.stringify({
-      es: selectedType || "",
-      en: selectedType || "" // Por ahora igualamos, puedes mapear si tienes traducciones
+      es: selectedType,
+      en: getMaterialTypeEn(selectedType)
     });
 
     const location = JSON.stringify({
@@ -97,7 +102,8 @@ async function updateMaterialAction(formData: FormData) {
       en: formData.get('description_en') || ""
     });
 
-    const useArray = formData.get('use') ? JSON.parse(formData.get('use') as string) : [];
+    const useArray = (formData.get('use') ? JSON.parse(formData.get('use') as string) : [])
+      .map((u: string) => String(u).toLowerCase());
 
     // C. UPDATE EN BASE DE DATOS
     await supabase`
@@ -117,6 +123,9 @@ async function updateMaterialAction(formData: FormData) {
     throw error;
   }
 
+  await recordEdit();
+  await triggerDeploy();
+  await setFlash('material-updated');
   revalidatePath('/admin/materials');
   revalidatePath(`/admin/materials/${id}`);
   revalidatePath('/');
@@ -129,12 +138,6 @@ async function updateMaterialAction(formData: FormData) {
 export default async function EditMaterialPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const searchTerm = slug.replace(/-/g, ' ');
-
-  // Opciones del dropdown basadas en image_187981.png
-  const MATERIAL_TYPES = [
-    "MÁRMOL", "GRANITO", "CUARCITA", "ÓNIX", "TRAVERTINO", 
-    "CALIZA", "MINERAL", "ALABASTRO", "ARENISCA", "PÓRFIDO"
-  ];
 
   let m;
   try {
@@ -167,14 +170,15 @@ export default async function EditMaterialPage({ params }: { params: Promise<{ s
 
   return (
     <form action={updateMaterialAction} className="mx-auto max-w-6xl pb-20">
+      <UnsavedChangesGuard />
       <input type="hidden" name="id" value={m.id} />
       <input type="hidden" name="current_image_url" value={m.image_url || ''} />
 
       <div className="mb-10 flex items-end justify-between">
         <div>
-          <Link href="/admin/materials" className="link-hover mb-2 block text-[10px] uppercase tracking-widest text-dynamicBlack/50">
-            ← Volver al catálogo
-          </Link>
+          <AdminLink href="/admin/materials" className="mb-4 block text-xs uppercase tracking-widest text-dynamicBlack/50 default-transition hover:text-bubonicBrown">
+            Volver al catálogo
+          </AdminLink>
           <h1 className="font-vollkorn text-5xl uppercase tracking-tight text-dynamicBlack">
             Editar: {m.material_name}
           </h1>
@@ -189,12 +193,6 @@ export default async function EditMaterialPage({ params }: { params: Promise<{ s
           <section className="card space-y-6 text-center">
             <h3 className="text-xs uppercase tracking-widest text-dynamicBlack/50">Fotografía del material</h3>
             <ImagePicker currentImage={currentImageUrl} />
-            <div className="mt-4 rounded-md border border-dynamicBlack/10 bg-baliPearl p-4">
-                <p className="mb-2 text-[8px] uppercase tracking-wide text-dynamicBlack/40">Estado del almacenamiento:</p>
-                <code className="break-all font-mono text-[9px] leading-tight text-bubonicBrown">
-                    {m.image_url ? 'Bunny.net Storage' : 'Legacy CDN'}
-                </code>
-            </div>
           </section>
           <MaterialUsesEditor initialUses={m.use || []} />
         </div>
@@ -204,46 +202,47 @@ export default async function EditMaterialPage({ params }: { params: Promise<{ s
             <h3 className="font-vollkorn text-sm uppercase tracking-widest text-dynamicBlack/60">1. Identidad y clasificación</h3>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div>
-                <label className="label">Nombre comercial <span className="required">*</span></label>
+                <label className="label">Nombre <span className="required">*</span></label>
                 <input name="material_name" required type="text" defaultValue={m.material_name} className="input" />
               </div>
 
               {/* DROPDOWN DE TIPOS */}
               <div>
-                <label className="label">Tipo de material</label>
+                <label className="label">Tipo de material <span className="required">*</span></label>
                 <select
                   name="material_type_es"
-                  defaultValue={typeData?.es || ""}
+                  required
+                  defaultValue={resolveMaterialTypeEs(typeData?.es)}
                   className="input cursor-pointer appearance-none"
                 >
                   <option value="" disabled>Selecciona un tipo...</option>
-                  {MATERIAL_TYPES.map(type => (
-                    <option key={type} value={type}>{type}</option>
+                  {MATERIAL_TYPES.map((t) => (
+                    <option key={t.es} value={t.es}>{t.es}</option>
                   ))}
                 </select>
               </div>
 
               <div>
-                <label className="label">Origen (ES)</label>
-                <input name="location_es" type="text" defaultValue={locationData?.es || ''} className="input" />
+                <label className="label">Origen (ES) <span className="required">*</span></label>
+                <input name="location_es" required type="text" defaultValue={locationData?.es || ''} className="input" />
               </div>
               <div>
-                <label className="label">Origin (EN)</label>
-                <input name="location_en" type="text" defaultValue={locationData?.en || ''} className="input" />
+                <label className="label">Origin (EN) <span className="required">*</span></label>
+                <input name="location_en" required type="text" defaultValue={locationData?.en || ''} className="input" />
               </div>
             </div>
           </section>
 
           <section className="card space-y-6">
-            <h3 className="font-vollkorn text-sm uppercase tracking-widest text-dynamicBlack/60">2. Descripción bilingüe</h3>
+            <h3 className="font-vollkorn text-sm uppercase tracking-widest text-dynamicBlack/60">2. Descripción</h3>
             <div className="space-y-4">
               <div>
-                <label className="label">Descripción (Español)</label>
-                <textarea name="description_es" rows={4} defaultValue={descriptionData?.es || ''} className="input leading-relaxed" />
+                <label className="label">Descripción (Español) <span className="required">*</span></label>
+                <textarea name="description_es" required rows={4} defaultValue={descriptionData?.es || ''} className="input leading-relaxed" />
               </div>
               <div>
-                <label className="label">Description (English)</label>
-                <textarea name="description_en" rows={4} defaultValue={descriptionData?.en || ''} className="input leading-relaxed" />
+                <label className="label">Description (English) <span className="required">*</span></label>
+                <textarea name="description_en" required rows={4} defaultValue={descriptionData?.en || ''} className="input leading-relaxed" />
               </div>
             </div>
           </section>

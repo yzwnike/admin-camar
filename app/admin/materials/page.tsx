@@ -3,6 +3,8 @@ import { supabase } from '@/lib/supabase'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import MaterialsList, { type MaterialItem } from '@/components/admin/MaterialsList'
+import FlashNotice from '@/components/admin/FlashNotice'
+import { triggerDeploy } from '@/lib/deploy-hook'
 
 /**
  * ACCIÓN PARA ELIMINAR MATERIAL (Server Action)
@@ -48,6 +50,7 @@ async function deleteMaterialAction(formData: FormData) {
     return;
   }
 
+  await triggerDeploy();
   // Revalidamos la ruta para que desaparezca de la lista
   revalidatePath('/admin/materials');
 }
@@ -119,6 +122,13 @@ export default async function MaterialsListPage() {
 
   return (
     <div className="space-y-8">
+      <FlashNotice
+        messages={{
+          'material-created': 'Material creado con éxito',
+          'material-updated': 'Material actualizado con éxito',
+        }}
+      />
+
       {/* HEADER DE SECCIÓN */}
       <div className="flex items-center justify-between">
         <div>

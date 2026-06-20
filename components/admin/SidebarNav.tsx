@@ -1,7 +1,7 @@
 'use client'
 
-import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import AdminLink from '@/components/admin/AdminLink'
 
 const menuItems = [
   { name: 'Materiales', href: '/admin/materials' },
@@ -15,21 +15,21 @@ export default function SidebarNav() {
   const isActive = (href: string) => pathname.startsWith(href)
 
   return (
-    <nav className="space-y-1">
+    <nav>
       {menuItems.map((item) => {
         const active = isActive(item.href)
         return (
-          <Link
+          <AdminLink
             key={item.href}
             href={item.href}
-            className={`block rounded-md px-3 py-2.5 font-vollkorn text-sm uppercase tracking-wide default-transition ${
+            className={`block px-6 py-2.5 font-vollkorn text-sm uppercase tracking-wide default-transition ${
               active
                 ? 'bg-baliPearl/10 text-baliPearl'
                 : 'text-baliPearl/70 hover:bg-secondaryBlack hover:text-baliPearl'
             }`}
           >
             {item.name}
-          </Link>
+          </AdminLink>
         )
       })}
     </nav>

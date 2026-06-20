@@ -1,13 +1,17 @@
 "use client"
 import { useState, ChangeEvent, useEffect } from 'react'
+import { useNotifications } from '@/components/admin/NotificationProvider'
 
 interface ImagePickerProps {
   currentImage?: string;
 }
 
+const MAX_SIZE = 500 * 1024 // 500KB
+const ACCEPTED = 'image/png,image/jpeg,image/webp'
+
 export default function ImagePicker({ currentImage }: ImagePickerProps) {
   const [preview, setPreview] = useState<string | null>(currentImage || null)
-  const [error, setError] = useState<string | null>(null)
+  const { notify } = useNotifications()
 
   // Limpieza de memoria: Revocar la URL creada cuando el componente se desmonte
   // o cuando la preview cambie para evitar fugas de memoria.
@@ -21,12 +25,15 @@ export default function ImagePicker({ currentImage }: ImagePickerProps) {
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    setError(null)
 
     if (file) {
-      // Validación estricta de 1MB
-      if (file.size > 1024 * 1024) {
-        setError("El archivo es demasiado grande (Máximo 1MB)");
+      // Validación de peso (500KB). Avisa con una notificación informativa.
+      if (file.size > MAX_SIZE) {
+        notify({
+          tone: 'error',
+          message: 'Imagen demasiado pesada',
+          description: 'La imagen supera el máximo de 500KB. Elige una más ligera.',
+        })
         setPreview(currentImage || null);
         e.target.value = ""; // Limpia el input
         return;
@@ -41,15 +48,18 @@ export default function ImagePicker({ currentImage }: ImagePickerProps) {
   return (
     <div className="space-y-4">
       <label
-        className={`group relative block aspect-4/5 cursor-pointer overflow-hidden rounded-xl border-2 border-dashed default-transition
-          ${error ? 'border-red-400 bg-red-50' : 'border-dynamicBlack/15 bg-white hover:border-bubonicBrown'}`}
+        className={`group relative block aspect-4/5 cursor-pointer overflow-hidden rounded-xl default-transition ${
+          preview
+            ? 'border border-transparent'
+            : 'border border-dashed border-dynamicBlack/15 bg-white hover:border-bubonicBrown'
+        }`}
       >
         <input
           type="file"
           name="image"
           className="hidden"
           onChange={handleImageChange}
-          accept="image/*"
+          accept={ACCEPTED}
         />
 
         {preview ? (
@@ -59,9 +69,9 @@ export default function ImagePicker({ currentImage }: ImagePickerProps) {
               className="absolute inset-0 h-full w-full object-cover"
               alt="Preview"
             />
-            {/* Overlay para indicar que se puede cambiar */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-dynamicBlack/40 text-baliPearl opacity-0 default-transition group-hover:opacity-100">
-              <span className="text-[10px] uppercase tracking-widest">Cambiar imagen</span>
+            {/* Texto abajo con degradado oscuro para legibilidad */}
+            <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-dynamicBlack/80 to-transparent pb-3 pt-10 text-center">
+              <span className="text-[10px] uppercase tracking-widest text-baliPearl">Cambiar foto</span>
             </div>
           </>
         ) : (
@@ -71,17 +81,11 @@ export default function ImagePicker({ currentImage }: ImagePickerProps) {
         )}
       </label>
 
-      <div className="min-h-5">
-        {error ? (
-          <p className="animate-pulse text-center text-[10px] font-bold uppercase text-red-500">
-            {error}
-          </p>
-        ) : preview && preview !== currentImage ? (
-          <p className="text-center text-[9px] uppercase tracking-widest text-green-700">
-            Nueva imagen lista para guardar
-          </p>
-        ) : null}
-      </div>
+      {preview && preview !== currentImage && (
+        <p className="text-center text-[9px] uppercase tracking-widest text-green-700">
+          Nueva imagen lista para guardar
+        </p>
+      )}
     </div>
   )
 }

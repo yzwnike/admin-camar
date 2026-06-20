@@ -1,6 +1,7 @@
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import DeleteNewsButton from './DeleteNewsButton' // Importamos el nuevo componente
+import { DeleteProjectButton } from '@/components/admin/DeleteProjectButton'
+import { deleteNewsAction } from './actions'
 
 export const dynamic = 'force-dynamic';
 
@@ -56,7 +57,7 @@ export default async function NewsListPage() {
               news.map((item: any) => (
                 <tr key={item.id} className="group default-transition hover:bg-secondaryGray/30">
                   <td className="p-6">
-                    <div className="relative h-16 w-16 overflow-hidden rounded-md border border-dynamicBlack/10 bg-secondaryGray default-transition group-hover:scale-105">
+                    <div className="relative h-16 w-16 overflow-hidden rounded-md border border-dynamicBlack/10 bg-secondaryGray">
                       {item.main_image ? (
                         <img
                           src={`${PULL_ZONE}${item.folder_custom || item.slug_es}/${item.main_image}`}
@@ -71,19 +72,19 @@ export default async function NewsListPage() {
                     </div>
                   </td>
 
-                  <td className="p-6">
+                  <td className="max-w-xs p-6">
                     <div className="flex flex-col">
-                      <span className="font-vollkorn text-lg leading-tight text-dynamicBlack default-transition group-hover:text-bubonicBrown">
+                      <span className="font-vollkorn text-lg leading-tight text-dynamicBlack">
                         {item.title?.es || item.title}
                       </span>
-                      <span className="mt-1 font-mono text-[10px] uppercase tracking-tighter text-dynamicBlack/40">
-                        URL: /{item.slug_es}
+                      <span className="mt-1 line-clamp-1 text-sm text-dynamicBlack/50">
+                        {item.excerpt?.es || ''}
                       </span>
                     </div>
                   </td>
 
                   <td className="p-6 text-center">
-                    <span className="badge">{formatDate(item.date)}</span>
+                    <span className="whitespace-nowrap text-xs text-dynamicBlack/50">{formatDate(item.date)}</span>
                   </td>
 
                   <td className="p-6 text-right">
@@ -92,8 +93,11 @@ export default async function NewsListPage() {
                         Editar
                       </Link>
 
-                      {/* Usamos el componente cliente que maneja la confirmación */}
-                      <DeleteNewsButton slug={item.slug_es} />
+                      <DeleteProjectButton
+                        id={item.id}
+                        projectName={item.title?.es || 'esta noticia'}
+                        deleteAction={deleteNewsAction}
+                      />
                     </div>
                   </td>
                 </tr>

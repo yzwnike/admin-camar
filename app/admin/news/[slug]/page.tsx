@@ -1,7 +1,8 @@
 import { supabase } from '@/lib/supabase'
 import NewsForm from '@/components/forms/NewsForm'
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
+import AdminLink from '@/components/admin/AdminLink'
+import UnsavedChangesGuard from '@/components/admin/UnsavedChangesGuard'
 
 // Definimos los tipos para Next.js 15
 interface Props {
@@ -34,16 +35,17 @@ export default async function EditNewsPage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-6xl">
+      <UnsavedChangesGuard />
       {/* Cabecera del Editor */}
       <div className="mb-10 flex items-end justify-between">
         <div className="space-y-2">
-          <Link
+          <AdminLink
             href="/admin/news"
             className="group flex items-center gap-2 text-[10px] uppercase tracking-widest text-bubonicBrown default-transition hover:text-rawSienna"
           >
             <span className="text-lg default-transition group-hover:-translate-x-1">←</span>
             Volver al listado
-          </Link>
+          </AdminLink>
           <h1 className="font-vollkorn text-5xl uppercase leading-none tracking-tight text-dynamicBlack">
             Editar noticia
           </h1>

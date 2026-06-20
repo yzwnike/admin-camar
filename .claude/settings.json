@@ -7,7 +7,25 @@
       "Bash(git stash *)",
       "Bash(npx tsc *)",
       "Bash(node -e 'fetch\\(\"http://localhost:3000/admin/projects\",{cache:\"no-store\"}\\).then\\(r=>r.text\\(\\)\\).then\\(h=>console.log\\(\"HTTP ok | brand:\",/btn-primary|font-vollkorn|dynamicBlack/.test\\(h\\),\"| old slate present:\",/slate-900|emerald-600/.test\\(h\\),\"| compileError:\",/Build Error|Failed to compile/i.test\\(h\\)\\)\\)')",
-      "Bash(node -e 'fetch\\(\"http://localhost:3000/admin/materials\",{cache:\"no-store\"}\\).then\\(r=>r.text\\(\\)\\).then\\(h=>console.log\\(\"HTTP 200 ok | Editar ficha:\",h.includes\\(\"Editar ficha\"\\),\"| compileError:\",/Build Error|Failed to compile/i.test\\(h\\)\\)\\)')"
+      "Bash(node -e 'fetch\\(\"http://localhost:3000/admin/materials\",{cache:\"no-store\"}\\).then\\(r=>r.text\\(\\)\\).then\\(h=>console.log\\(\"HTTP 200 ok | Editar ficha:\",h.includes\\(\"Editar ficha\"\\),\"| compileError:\",/Build Error|Failed to compile/i.test\\(h\\)\\)\\)')",
+      "Bash(node -e 'fetch\\(\"http://localhost:3000/admin/materials\",{cache:\"no-store\"}\\).then\\(r=>r.text\\(\\)\\).then\\(h=>console.log\\(\"HTTP ok | sticky:\",h.includes\\(\"sticky\"\\),\"| compileError:\",/Build Error|Failed to compile/i.test\\(h\\)\\)\\)')",
+      "Bash(node -e 'fetch\\(\"http://localhost:3000/admin/news\",{cache:\"no-store\"}\\).then\\(r=>r.text\\(\\)\\).then\\(h=>console.log\\(\"HTTP ok | compileError:\",/Build Error|Failed to compile/i.test\\(h\\)\\)\\)')",
+      "Bash(node -e 'fetch\\(\"http://localhost:3000/admin/materials/new\",{cache:\"no-store\"}\\).then\\(r=>r.text\\(\\)\\).then\\(h=>console.log\\(\"HTTP ok | form:\",h.includes\\(\"Nuevo material\"\\),\"| compileError:\",/Build Error|Failed to compile/i.test\\(h\\)\\)\\)')",
+      "Bash(node /tmp/inspect-material.mjs)",
+      "Bash(node inspect-material.mjs)",
+      "Bash(node setup-meta.mjs)",
+      "Bash(node -e 'fetch\\(\"http://localhost:3000/admin/materials\",{cache:\"no-store\"}\\).then\\(r=>r.text\\(\\)\\).then\\(h=>console.log\\(\"HTTP ok | Última edición:\",h.includes\\(\"Última edición\"\\),\"| compileError:\",/Build Error|Failed to compile/i.test\\(h\\)\\)\\)')",
+      "Bash(awk '/onNavigate/{print NR\": \"$0}' node_modules/next/dist/docs/01-app/03-api-reference/02-components/link.md)",
+      "Bash(node -e 'fetch\\(\"http://localhost:3000/admin/materials/new\",{cache:\"no-store\"}\\).then\\(r=>r.text\\(\\)\\).then\\(h=>console.log\\(\"HTTP ok | formatos text gone:\",!h.includes\\(\"Formatos: WebP\"\\),\"| compileError:\",/Build Error|Failed to compile/i.test\\(h\\)\\)\\)')",
+      "Bash(node -e 'fetch\\(\"http://localhost:3000/admin/materials/new\",{cache:\"no-store\"}\\).then\\(r=>r.text\\(\\)\\).then\\(h=>console.log\\(\"HTTP ok | compileError:\",/Build Error|Failed to compile/i.test\\(h\\)\\)\\)')",
+      "Bash(node inspect-types.mjs)",
+      "Bash(node inspect-use.mjs)",
+      "Bash(node inspect-uses.mjs)",
+      "Bash(node -e 'fetch\\(\"http://localhost:3000/login\",{cache:\"no-store\"}\\).then\\(r=>r.text\\(\\)\\).then\\(h=>console.log\\(\"HTTP ok | watermark svg:\",h.includes\\(\"viewBox=\\\\\"0 0 777 768\\\\\"\"\\),\"| bg-dynamicBlack:\",h.includes\\(\"bg-dynamicBlack\"\\),\"| compileError:\",/Build Error|Failed to compile/i.test\\(h\\)\\)\\)')",
+      "Bash(node -)",
+      "Bash(node -e 'fetch\\(\"http://localhost:3000/login\",{cache:\"no-store\"}\\).then\\(r=>r.text\\(\\)\\).then\\(h=>console.log\\(\"HTTP ok | viewBox nuevo:\",h.includes\\(\"-586.77 -55.95 1428.8 946.37\"\\)||h.includes\\(\"-586.77 -55.95 1428.80 946.37\"\\),\"| compileError:\",/Build Error|Failed to compile/i.test\\(h\\)\\)\\)')",
+      "Bash(node -e 'fetch\\(\"http://localhost:3000/login\",{cache:\"no-store\"}\\).then\\(r=>r.text\\(\\)\\).then\\(h=>{const m=h.match\\(/viewBox=\"[^\"]*\"/g\\);console.log\\(\"viewBox\\(es\\):\",m\\);console.log\\(\"preserveAspectRatio:\",/preserveAspectRatio/.test\\(h\\)\\);}\\)')",
+      "Bash(awk '{print $2, $11, $12, $13}')"
     ]
   }
 }

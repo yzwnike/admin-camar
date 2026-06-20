@@ -50,7 +50,7 @@ export default function ProjectsList({ items, deleteAction }: Props) {
       ) : (
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {filtered.map((p) => (
-            <div key={p.id} className="group relative overflow-hidden rounded-xl border border-dynamicBlack/10 bg-white default-transition hover:shadow-lg">
+            <div key={p.id} className="relative overflow-hidden border border-dynamicBlack/10 bg-white">
 
               {/* BOTÓN ELIMINAR */}
               <div className="absolute right-4 top-4 z-10">
@@ -62,7 +62,7 @@ export default function ProjectsList({ items, deleteAction }: Props) {
                 <img
                   src={p.portada}
                   alt={p.titulo}
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                  className="h-full w-full object-cover"
                 />
               </div>
 

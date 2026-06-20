@@ -101,14 +101,14 @@ body {
 
   /* ---- Formularios ----------------------------------------------------- */
   .label {
-    @apply mb-2 block font-workSans text-sm uppercase tracking-wide text-dynamicBlack/70;
+    @apply mb-2 block font-workSans text-sm uppercase tracking-wide text-dynamicBlack;
   }
   .required {
     @apply text-red-500;
   }
   .input {
     @apply w-full rounded-md border border-gray-300 bg-white px-3 py-2 font-workSans
-           text-dynamicBlack transition-all duration-300
+           text-dynamicBlack/70 transition-all duration-300
            placeholder:text-dynamicBlack/40
            focus:border-dynamicBlack focus:outline-none;
   }
@@ -184,4 +184,34 @@ body {
   font-family: var(--font-workSans);
   line-height: 1.7;
   margin-bottom: 0.25rem;
+}
+
+/* ==========================================================================
+   Notificación global (banner inferior)
+   ========================================================================== */
+@keyframes notif-slide-up {
+  from {
+    transform: translateY(120%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes notif-slide-down {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(120%);
+    opacity: 0;
+  }
+}
+.animate-notif {
+  animation: notif-slide-up 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.animate-notif-out {
+  animation: notif-slide-down 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }

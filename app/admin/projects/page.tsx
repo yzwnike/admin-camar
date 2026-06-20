@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase'
 import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import ProjectsList, { type ProjectItem } from '@/components/admin/ProjectsList'
+import { triggerDeploy } from '@/lib/deploy-hook'
 
 /**
  * ACCIÓN PARA ELIMINAR (Adaptada a Neon/SQL)
@@ -24,6 +25,7 @@ async function deleteProjectAction(formData: FormData) {
     return;
   }
 
+  await triggerDeploy();
   revalidatePath('/admin/projects');
 }
 

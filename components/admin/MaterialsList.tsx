@@ -53,7 +53,7 @@ export default function MaterialsList({ items, deleteAction }: Props) {
       ) : (
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {filtered.map((m) => (
-            <div key={m.id} className="group relative flex flex-col overflow-hidden rounded-xl border border-dynamicBlack/10 bg-white default-transition hover:shadow-lg">
+            <div key={m.id} className="relative flex flex-col overflow-hidden border border-dynamicBlack/10 bg-white">
 
               {/* BOTÓN ELIMINAR FLOTANTE */}
               <div className="absolute right-4 top-4 z-20">
@@ -62,9 +62,7 @@ export default function MaterialsList({ items, deleteAction }: Props) {
 
               {/* CONTENEDOR DE IMAGEN */}
               <div className="relative aspect-square overflow-hidden bg-secondaryGray">
-                <div className="h-full w-full transition-transform duration-700 group-hover:scale-110">
-                  <MaterialImage src={m.thumb} alt={m.nombre} />
-                </div>
+                <MaterialImage src={m.thumb} alt={m.nombre} />
               </div>
 
               {/* INFORMACIÓN Y ACCIONES */}

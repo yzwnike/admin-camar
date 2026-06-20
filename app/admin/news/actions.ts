@@ -3,6 +3,8 @@
 import { supabase } from '@/lib/supabase'
 import { revalidatePath } from 'next/cache'
 import { randomUUID } from 'crypto'
+import { recordEdit } from '@/lib/app-meta'
+import { triggerDeploy } from '@/lib/deploy-hook'
 
 /**
  * CONFIGURACIÓN DE BUNNY CDN
@@ -98,6 +100,8 @@ export async function upsertNewsAction(formData: FormData) {
       `;
     }
 
+    await recordEdit();
+    await triggerDeploy();
     revalidatePath('/admin/news');
     return { success: true };
   } catch (error: any) {
@@ -135,6 +139,7 @@ export async function deleteNewsAction(formData: FormData) {
     // Borrar de DB
     await supabase`DELETE FROM noticias WHERE id = ${id}`;
 
+    await triggerDeploy();
     revalidatePath('/admin/news');
     return { success: true };
   } catch (error: any) {
